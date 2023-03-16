@@ -1,0 +1,6 @@
+decision_analysis
+da_filepaths.txt
+decision_analysis_embeddings.pkl
+transcriptions.txt
+*.pyc
+output.pdf

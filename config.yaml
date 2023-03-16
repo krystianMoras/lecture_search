@@ -1,0 +1,4 @@
+decision_analysis_filepaths: da_filepaths.txt
+corpus_embeddings_path: decision_analysis_embeddings.pkl
+transcriptions_path: transcriptions.txt
+query_pdf_path: output.pdf
