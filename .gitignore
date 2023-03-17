@@ -1,6 +1,10 @@
 decision_analysis
 da_filepaths.txt
+da_slides.txt
 decision_analysis_embeddings.pkl
 transcriptions.txt
 *.pyc
 output.pdf
+*.faiss
+*.db
+*.json
