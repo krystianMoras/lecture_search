@@ -1,0 +1,1 @@
+import lecture_search.tokenizers.ucphrase_tokenizer
