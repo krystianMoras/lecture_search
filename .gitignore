@@ -8,3 +8,8 @@ output.pdf
 *.faiss
 *.db
 *.json
+models
+data
+lib
+*.egg-info
+*.ipynb
