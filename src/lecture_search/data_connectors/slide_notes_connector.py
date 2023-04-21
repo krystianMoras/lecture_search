@@ -38,4 +38,4 @@ class SlideNotesConnector(BaseReader):
 
 if __name__ == "__main__":
     da_pattern = r'\[[0-9]+\]'
-    print(SlideNotesConnector().load_data([Path("decision_analysis/da-lec1-notes.pdf")],da_pattern,Path(r"C:\Users\kryst\Documents\Artificial Intelligence\Artificial Intelligence - sem6\nlp\lecture_search\data")/ "transcriptions.json"))
+    print(SlideNotesConnector().load_data([Path("decision_analysis/da-lec1-notes.pdf"),Path("decision_analysis/da-lec2-notes.pdf")],da_pattern,Path(r"C:\Users\kryst\Documents\Artificial Intelligence\Artificial Intelligence - sem6\nlp\lecture_search\data")/ "transcriptions.json"))

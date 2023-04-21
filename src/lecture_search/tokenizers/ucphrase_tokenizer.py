@@ -2,6 +2,21 @@ import transformers
 from pathlib import Path
 import json
 from nltk.tokenize import sent_tokenize
+
+from nltk.stem.snowball import SnowballStemmer
+STEMMER = SnowballStemmer('porter', ignore_stopwords=False)
+
+
+def stem_word(w):
+    return STEMMER.stem(w)
+
+
+def stem_cand(c):
+    return ' '.join([stem_word(w) for w in c.split()]).lower()
+
+import string
+PUNCS = set(string.punctuation) - {'-'}
+
 class UCPhraseTokenizer:
 
     MAX_SENT_LEN = 64
@@ -50,6 +65,22 @@ class UCPhraseTokenizer:
             json.dump(tokenized_docs,f)
         with open(tokenized_id_docs_path,"w") as f:
             json.dump(tokenized_id_docs,f)
+
+    def roberta_tokens_to_str(self,tokens):
+        return ''.join(tokens).replace(self.GPT_TOKEN, ' ').strip()
+    
+    def sentence_ids_to_tokens(self,sentence_ids):
+        tokens = self.LM_TOKENIZER.convert_ids_to_tokens(sentence_ids)
+
+        return tokens
+    
+    def stem(self,word):
+        return self.LM_TOKENIZER.stem(word)
+    
+    def filter_punctuation(self,cands):
+        return [c for c in cands if not (c[0] in PUNCS or c[-1] in PUNCS)]
+
+
 
 
 if __name__ == "__main__":
