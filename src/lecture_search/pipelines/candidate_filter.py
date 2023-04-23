@@ -18,6 +18,13 @@ def count_sublist(search, searched):
             count+=1
     return count
 
+def find_first_occurrence(search, searched):
+    all_indices = [i for i, x in enumerate(searched) if x == search[0]]
+    for index in all_indices:
+        if search == searched[index:index+len(search)]:
+            return index
+    return np.inf
+
 
 class CandidatePostProcessor:
 
@@ -144,29 +151,42 @@ class CandidatePostProcessor:
     def phrase_hierarchy_graph(self, stemmed_candidates):
         
         G = nx.DiGraph()
-        for candidate in stemmed_candidates:
-            G.add_node(candidate)
-        
+
+        # sort terms by their first occurrence in the document
+        stemmed_candidates_first_occurences = {candidate:find_first_occurrence(candidate.split(), self.all_words) for candidate in stemmed_candidates}
+        stemmed_candidates = sorted(stemmed_candidates_first_occurences, key=lambda x: stemmed_candidates_first_occurences[x])
+        pointer = 0
         for doc in self.stemmed_transcriptions:
+            
             # get all candidates that are in the document
+           # print(len(doc))
+            terms = []
+            for term in stemmed_candidates:
+                count = count_sublist(term.split(), doc)
+                if count > 0:
+                    terms.append((term,stemmed_candidates_first_occurences[term]))
+            print(terms)
+            for i in range(len(terms)):
+                term, term_occurence = terms[i]
+                for j in range(i+1, len(terms)):
+                    other_term, other_term_occurence = terms[j]
 
-
-            term_counts = {term: count_sublist(term.split(), doc) for term in stemmed_candidates}
-            term_counts = {term: count for term, count in term_counts.items() if count > 0}
-            print(term_counts)
-            # from terms that appear at least once
-            for term in term_counts:
-                if term_counts[term] > 0:
-   
-                    # add edges to all other terms that appear at least once
-                    for other_term in term_counts:
-                        if other_term != term and term_counts[other_term] > 0:
-                            # if edge doesnt exist, add it
-                            if not G.has_edge(term, other_term):
+                    if other_term != term:
+                        # if term occurs before other term, add edge from other term to term
+                        if other_term_occurence > term_occurence:
+                            
+                            if other_term_occurence > pointer and term_occurence < pointer:
+                                #other term probably refers to the term
+                                if not G.has_edge(term,other_term):
+                                    G.add_edge(term,other_term,weight=1)
+                                else:
+                                    G[term][other_term]["weight"] += 1
+                        else: 
+                            if not G.has_edge(term, other_term) and not G.has_edge(other_term, term):
                                 G.add_edge(term, other_term,weight=1)
-                            # if edge exists, increment weight
-                            else:    
-                                G[term][other_term]['weight'] += 1
+                                G.add_edge(other_term, term,weight=1)
+        
+            pointer += len(doc)          
             
         # hubs and authorities?
 
@@ -190,4 +210,4 @@ if __name__ == "__main__":
         json.dump(filtered, f)
     print(filtered)
     G2 = pp.phrase_hierarchy_graph(list(filtered.keys()))
-    nx.write_gml(G2, "phrase_hierarchy.gml")
+    nx.write_gml(G2, "data/phrase_hierarchy.gml")

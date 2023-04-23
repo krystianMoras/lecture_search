@@ -1,4 +1,6 @@
-decision_analysis_filepaths: da_filepaths.txt
-corpus_embeddings_path: decision_analysis_embeddings.pkl
-transcriptions_path: transcriptions.txt
-query_pdf_path: output.pdf
+da_pattern: '\[[0-9]+\]'
+transcription_path: "data/transcriptions.json"
+tokenized_transcriptions_path: "data/tokenized_transcriptions.json"
+tokenized_id_transcriptions_path: "data/tokenized_id_transcriptions.json"
+ucp_mode_path: "models/ucphrase.pt"
+filtered_candidates_path: "data/filtered_candidates.json"
