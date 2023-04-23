@@ -1,3 +1,5 @@
+# adapted from https://github.com/xgeric/UCPhrase-exp
+# Xiaotao Gu*, Zihan Wang*, Zhenyu Bi, Yu Meng, Liyuan Liu, Jiawei Han, Jingbo Shang, "UCPhrase: Unsupervised Context-aware Quality Phrase Tagging", in Proc. of 2021 ACM SIGKDD Int. Conf. on Knowledge Discovery and Data Mining (KDD'21), Aug. 2021
 import torch.nn as nn
 import torch
 from tqdm import tqdm
