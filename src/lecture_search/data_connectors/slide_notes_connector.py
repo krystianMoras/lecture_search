@@ -20,7 +20,7 @@ class SlideNotesConnector(BaseReader):
 
                     for match in PATTERN.finditer(page_text):
                         notes = page_text[match.end():]
-                        notes = notes.replace("\ufb01","f").replace("\ufb00","ff").replace("\ufb02","fl").replace("\ufb03","ffi").replace("\ufb04","ffl").replace("\u2019","'").replace("\u2013","-") # todo : move this out of here
+                        notes = notes.replace("\ufb01","fi").replace("\ufb00","ff").replace("\ufb02","fl").replace("\ufb03","ffi").replace("\ufb04","ffl").replace("\u2019","'").replace("\u2013","-") # todo : move this out of here
                         transcriptions[doc_id] = notes
                         documents.append(Document(text=notes,doc_id=doc_id))
             elif notes_path.suffix == ".json":
@@ -38,4 +38,18 @@ class SlideNotesConnector(BaseReader):
 
 if __name__ == "__main__":
     da_pattern = r'\[[0-9]+\]'
-    print(SlideNotesConnector().load_data([Path("decision_analysis/da-lec1-notes.pdf"),Path("decision_analysis/da-lec2-notes.pdf")],da_pattern,Path(r"C:\Users\kryst\Documents\Artificial Intelligence\Artificial Intelligence - sem6\nlp\lecture_search\data")/ "transcriptions.json"))
+    slides = [
+        Path("decision_analysis/da-lec1-notes.pdf"),
+        Path("decision_analysis/da-lec2-notes.pdf"),
+        Path("decision_analysis/da-lec3-notes.pdf"),
+        Path("decision_analysis/da-lec4-notes.pdf"),
+        Path("decision_analysis/da-lec5-notes.pdf"),
+        Path("decision_analysis/da-lec6-notes.pdf"),
+        Path("decision_analysis/da-lec7-notes.pdf"),
+        Path("decision_analysis/da-lec8-notes.pdf"),
+        Path("decision_analysis/da-lec9-notes.pdf"),
+        Path("decision_analysis/da-lec10-notes.pdf"),
+        Path("decision_analysis/da-lec11-notes.pdf"),
+        Path("decision_analysis/da-lec12-notes.pdf"),
+    ]
+    SlideNotesConnector().load_data(slides,da_pattern,Path(r"C:\Users\kryst\Documents\Artificial Intelligence\Artificial Intelligence - sem6\nlp\lecture_search\data")/ "transcriptions.json")

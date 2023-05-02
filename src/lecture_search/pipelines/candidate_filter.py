@@ -80,7 +80,7 @@ class CandidatePostProcessor:
     def idf(self,word):
         # number of documents
         N = len(self.stemmed_transcriptions_dicts)
-        word_idf = N / self.count_documents_where_word_appears(word)
+        word_idf = N / (self.count_documents_where_word_appears(word)+1)
         return log(1 + word_idf)
 
     def filter_candidates(self, candidates):
@@ -198,7 +198,7 @@ if __name__ == "__main__":
 
     # open candidates.json
 
-    with open('data/candidates.json', 'r') as f:
+    with open('data/candidates1.json', 'r') as f:
         candidates = json.load(f)
 
     with open('data/transcriptions.json', 'r') as f:
