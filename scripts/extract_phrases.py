@@ -6,7 +6,7 @@ config = yaml.safe_load(open("config.yaml"))
 
 
 if __name__ == "__main__":
-    kpe = KeyPhraseExtractor(results_path=Path(config["results_path"]))
+    kpe = KeyPhraseExtractor(model_path=config["kpe_model_path"],results_path=Path(config["results_path"]))
     kpe.extract_from_files(
         [
             r"assets\transcriptions\Natural language processing - lecture 4 Attention and Transformer.wav.srt.srt",

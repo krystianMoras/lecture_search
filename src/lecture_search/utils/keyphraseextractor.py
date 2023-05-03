@@ -37,12 +37,12 @@ connector_map = {
 
 
 class KeyPhraseExtractor:
-    def __init__(self, results_path: Path) -> None:
+    def __init__(self, model_path, results_path: Path) -> None:
         self.results_path = results_path
         # initialize model, tokenizer, pipeline
         self.tokenizer = UCPhraseTokenizer()
         self.model = EmbedModel()
-        self.model.load_state_dict(torch.load("models/ucphrase/ucphrase.pt"))
+        self.model.load_state_dict(torch.load(model_path))
         self.pipeline = kpe_pipeline.KeyPhraseExtractionPipeline(
             model=self.model, tokenizer=self.tokenizer
         )
@@ -126,7 +126,9 @@ class KeyPhraseExtractor:
 
 
 if __name__ == "__main__":
-    kpe = KeyPhraseExtractor(results_path=Path("./data"))
+    kpe = KeyPhraseExtractor(
+        model_path="models/ucphrase/ucphrase.pt", results_path=Path("./data")
+    )
     kpe.extract_from_files(
         [
             r"assets\transcriptions\Natural language processing - lecture 4 Attention and Transformer.wav.srt.srt",

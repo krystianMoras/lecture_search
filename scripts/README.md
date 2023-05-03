@@ -55,12 +55,13 @@ python scripts/transcribe.py
 
 ## extract_phrases.py
 
-dm me for link to ucphrase model
+download model from https://huggingface.co/krystianmoras/key_phrase_extraction/blob/main/ucphrase.pt
 
 in config.yaml set
 
 ```yaml
 
+kpe_model_path: <path to ucphrase.pt>
 results_path: "./data"
 candidates_file_name: "results.json"
 save_intermediate: True

@@ -13,3 +13,5 @@ data
 lib
 *.egg-info
 *.ipynb
+assets
+whisper.cpp

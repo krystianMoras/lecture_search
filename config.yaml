@@ -1,9 +1,4 @@
 da_pattern: '\[[0-9]+\]'
-transcription_path: "data/transcriptions.json"
-tokenized_transcriptions_path: "data/tokenized_transcriptions.json"
-tokenized_id_transcriptions_path: "data/tokenized_id_transcriptions.json"
-ucp_mode_path: "models/ucphrase.pt"
-filtered_candidates_path: "data/filtered_candidates.json"
 
 whisper_cpp_executable_path: "./whisper.cpp/main.exe"
 whisper_models_path: "./models/whisper"
@@ -13,6 +8,7 @@ videos_path: "./assets/videos"
 audio_path: "./assets/audio"
 transcriptions_path: "./assets/transcriptions"
 
+kpe_model_path: "models/ucphrase/ucphrase.pt"
 results_path: "./data"
 candidates_file_name: "results.json"
 save_intermediate: True
