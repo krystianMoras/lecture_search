@@ -5,60 +5,79 @@ from dash_iconify import DashIconify
 from dash import html
 from dash import Input, Output, State
 
-# from cytotools.app.components.filetree import FileTree
+import dash_player
+
 from dash import MATCH, ALL
 from typing import List
 from dash import dcc
 import dash_utils
 import utils
+import json
+import srt
+from pathlib import Path
+import bisect
+import yaml
 
-transcriptions = utils.get_transcriptions("data/transcriptions.json")
-_,candidates = utils.get_filtered_candidates("data/filtered_candidates.json")
+yaml_config = yaml.load(open("config.yaml", "r").read(), Loader=yaml.FullLoader)
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+videos_path = Path(yaml_config["videos_path"])
+
+all_video_files = [
+    (f.name, str(f))
+    for f in videos_path.iterdir()
+    if f.is_file() and f.suffix == ".mp4"
+]
+
+CONFIG = {"video_subtitles": None, "video_path": None}
 
 
-offcanvas = dbc.Offcanvas(
-    children=dmc.Container(
-        [
-            # select folder button
-            dmc.Button(
-                "Select folder",
-                leftIcon=DashIconify(icon="mdi:folder", width=20),
-                id="select-folder",
-            ),
-            dmc.NavLink(id="filetree"),
-        ]
-    ),
-    id="offcanvas-backdrop",
-    title=dmc.ActionIcon(
-        DashIconify(icon="mdi:menu", width=20),
-        size="lg",
-        id="offcanvas-backdrop-close",
-        n_clicks=0,
-        mb=10,
-    ),
-    is_open=False,
-    backdrop=False,
-    close_button=False,
+class VideoSubtitles:
+    def __init__(self, srt_path):
+        self.srt_path = srt_path
+        self.parser = srt.parse(open(srt_path, "r").read())
+        self.min_times = []
+        self.max_times = []
+        self.texts = []
+        self._parse_subtitles()
+
+    def _parse_subtitles(self):
+        for p in self.parser:
+            self.min_times.append(p.start.total_seconds())
+            self.max_times.append(p.end.total_seconds())
+            self.texts.append(p.content)
+
+    def find_subtitle(self, time):
+        idx = bisect.bisect_left(self.max_times, time)
+        if (
+            idx < len(self.max_times)
+            and self.min_times[idx] <= time <= self.max_times[idx]
+        ):
+            return self.texts[idx]
+        else:
+            return None
+
+
+with open("data/results.json", "r") as f:
+    results = json.load(f)
+candidates = []
+
+for doc in results:
+    candidates.extend(results[doc])
+
+# get absolute path to assets folder
+asset_folder = yaml_config["assets_path"]
+abs_path_to_assets_folder = Path(asset_folder).absolute()
+print(abs_path_to_assets_folder)
+app = dash.Dash(
+    __name__,
+    external_stylesheets=[dbc.themes.BOOTSTRAP],
+    assets_folder=abs_path_to_assets_folder,
 )
+
 
 navbar = dbc.Navbar(
     dbc.Row(
         [
-            dbc.Col(
-                [
-                    dmc.ActionIcon(
-                        DashIconify(icon="mdi:menu", width=20),
-                        size="lg",
-                        id="offcanvas-backdrop-open",
-                        n_clicks=0,
-                        mb=10,
-                        # margin
-                        ml=10,
-                    ),
-                ]
-            ),
             dbc.Col(
                 [
                     dbc.NavbarBrand("", className="ms-2"),
@@ -68,9 +87,11 @@ navbar = dbc.Navbar(
                 [
                     dmc.Button(
                         "Export to Obsidian",
-                        leftIcon=DashIconify(icon="simple-icons:obsidian", width=20,color="#6F5AC7"),
-                                    variant="gradient",
-            gradient={"from": "indigo", "to": "purple"},
+                        leftIcon=DashIconify(
+                            icon="simple-icons:obsidian", width=20, color="#6F5AC7"
+                        ),
+                        variant="gradient",
+                        gradient={"from": "indigo", "to": "purple"},
                         id="export-obsidian",
                     ),
                 ]
@@ -85,57 +106,60 @@ navbar = dbc.Navbar(
 
 text_card = dmc.Card(
     children=[
-    
         dbc.Row(
             [
-                dbc.Col(        dcc.Upload(
-            id="upload-data",
-            children=html.Div(["Drag and Drop or ", html.A("Select Files")]),
-            style={
-                "width": "100%",
-                "height": "60px",
-                "lineHeight": "60px",
-                "borderWidth": "1px",
-                "borderStyle": "dashed",
-                "borderRadius": "5px",
-                "textAlign": "center",
-                "margin": "10px",
-            },
-            # Allow multiple files to be uploaded
-            multiple=True,
-        ),width=4),
-        dbc.Col([
-    dmc.ChipGroup([
-                    dmc.Chip("Chip 1"),
-                    dmc.Chip("Chip 2"),
-                    dmc.Chip("Chip 3"),
-                    dmc.Chip("Chip 4"),
-                    dmc.Chip("Chip 5"),
-                    dmc.Chip("Chip 6"),
-                    dmc.Chip("Chip 7"),
-                    dmc.Chip("Chip 8"),
-                    dmc.Chip("Chip 9"),
-                    dmc.Chip("Chip 10"),
-                    dmc.Chip("Chip 11"),
-                    dmc.Chip("Chip 12"),
-                    dmc.Chip("Chip 13"),
-                    dmc.Chip("Chip 14"),
-                    dmc.Chip("Chip 15"),
-                    dmc.Chip("Chip 16"),
-                    dmc.Chip("Chip 17"),
-                    dmc.Chip("Chip 18"),
-                ])
-        ])
-                
-            ]),
-
-        dbc.Row(
-            [
-                dbc.Col(html.H2("Transcriptions"), width=6),
+                dbc.Col(html.H2("Video"), width=6),
             ]
         ),
-        *dash_utils.get_transcription_cards(transcriptions),
-        
+        dbc.Row(
+            [
+                dbc.Col(
+                    [
+                        dmc.Select(
+                            id="url",
+                            placeholder="Select video",
+                            data=[
+                                {"label": name, "value": path}
+                                for name, path in all_video_files
+                            ],
+                            value=all_video_files[0][1],
+                        ),
+                    ],
+                    md=10,
+                ),
+                dbc.Col(
+                    [
+                        dmc.Button(
+                            "Load",
+                            id="load-button",
+                            color="blue",
+                            variant="outline",
+                        ),
+                    ],
+                    md=2,
+                ),
+            ]
+        ),
+        dash_player.DashPlayer(
+            id="video-player",
+            url="https://www.youtube.com/watch?v=3KqjNVRfBP4",
+            controls=True,
+            playing=False,
+        ),
+        dbc.Row(
+            [
+                dbc.Col(html.H2("Transcription"), width=6),
+            ]
+        ),
+        dmc.Paper(
+            [
+                dmc.Highlight(
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla vitae elit libero, a pharetra augue. Nullam id dolor id nibh ultricies vehicula ut id elit. Nulla vitae elit libero, a pharetra augue. Nullam id dolor id nibh ultricies vehicula ut id elit.",
+                    highlight=candidates,
+                    id="transcription",
+                ),
+            ],
+        ),
     ],
     withBorder=True,
     shadow="sm",
@@ -151,17 +175,11 @@ actions_column = [
                 radius="md",
                 withBorder=True,
                 children=[
-                    html.H3("Phrase extraction"),
-                    dmc.Button(
-                        "Extract phrases",
-                        leftIcon=DashIconify(icon="mdi:format-list-bulleted", width=20),
-                        id="extract-phrases",
-                    ),
-                    html.H4("Phrases"),
+                    html.H4("Key Phrases"),
                     dmc.Group(
                         id="phrases",
-                        children=dash_utils.get_candidate_badges(candidates)
-                    )
+                        children=dash_utils.get_candidate_badges(candidates),
+                    ),
                 ],
             )
         ],
@@ -195,7 +213,6 @@ app.layout = dmc.NotificationsProvider(
         [
             navbar,
             body,
-            offcanvas,
         ]
     ),
     position="top-center",
@@ -203,27 +220,32 @@ app.layout = dmc.NotificationsProvider(
 
 
 @app.callback(
-    Output("offcanvas-backdrop", "is_open"),
-    Input("offcanvas-backdrop-open", "n_clicks"),
-    Input("offcanvas-backdrop-close", "n_clicks"),
-    State("offcanvas-backdrop", "is_open"),
+    Output("transcription", "children"),
+    Input("video-player", "currentTime"),
 )
-def toggle_offcanvas(n1, n2, is_open):
-    if n1 or n2:
-        return not is_open
-    return is_open
+def update_transcription(currentTime):
+    if CONFIG["video_subtitles"] is None:
+        return "No subtitles loaded"
+
+    subtitle = CONFIG["video_subtitles"].find_subtitle(float(currentTime))
+    return subtitle
 
 
-@app.callback(Output('output-image-upload', 'children'),
-              Input('upload-image', 'contents'),
-              State('upload-image', 'filename'),
-              State('upload-image', 'last_modified'))
-def update_output(list_of_contents, list_of_names, list_of_dates):
-    if list_of_contents is not None:
-        children = [
-            parse_contents(c, n, d) for c, n, d in
-            zip(list_of_contents, list_of_names, list_of_dates)]
-        return children
+@app.callback(
+    Output("video-player", "url"),
+    Output("video-player", "currentTime"),
+    Input("load-button", "n_clicks"),
+    State("url", "value"),
+)
+def load_video(n_clicks, url):
+    path = Path(url)
+    asset_url = app.get_asset_url("videos/" + path.name)
+    print(asset_url)
+    srt_path = Path(yaml_config["transcriptions_path"]) / (path.stem + ".srt")
+    CONFIG["video_subtitles"] = VideoSubtitles(srt_path)
+    print(CONFIG["video_subtitles"].find_subtitle(0))
+    return asset_url, float(0)
+
 
 if __name__ == "__main__":
     app.run_server(debug=True)

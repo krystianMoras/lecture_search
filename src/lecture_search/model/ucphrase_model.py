@@ -5,11 +5,6 @@ import torch
 from tqdm import tqdm
 import transformers
 
-LM_NAME = "allenai/cs_roberta_base"
-LM_MODEL = transformers.RobertaModel.from_pretrained(LM_NAME).eval()
-LM_TOKENIZER = transformers.RobertaTokenizerFast.from_pretrained(LM_NAME)
-print(f'[consts] Loading pretrained model: {LM_NAME} OK!')
-
 
 # settings
 MAX_SENT_LEN = 64
@@ -20,11 +15,12 @@ NEGATIVE_RATIO = 1
 # USE ONLY FOR INFERENCE FOR NOW
 # TODO: add training
 
+
 class BaseModel(nn.Module):
     def __init__(self) -> None:
         super().__init__()
         self.sigmoid = nn.Sigmoid()
-        self.dropout = nn.Dropout(.2)
+        self.dropout = nn.Dropout(0.2)
         self.loss = nn.BCEWithLogitsLoss()
 
     def get_probs(self, *features):
@@ -38,13 +34,17 @@ class BaseModel(nn.Module):
         loss = self.loss(logits, labels).mean()
         return loss
 
+
 class EmbedModel(BaseModel):
-    def __init__(self) -> None:
+    def __init__(self, LM_NAME="allenai/cs_roberta_base") -> None:
         super().__init__()
-        self.roberta = LM_MODEL
+
+        self.roberta = transformers.RobertaModel.from_pretrained(LM_NAME).eval()
         self.dim_len_emb = 50
-        self.length_embed = nn.Embedding(num_embeddings=MAX_SUBWORD_GRAM + 1, embedding_dim=self.dim_len_emb)
-        self.dim_feature = self.dim_len_emb + LM_MODEL.config.hidden_size * 2
+        self.length_embed = nn.Embedding(
+            num_embeddings=MAX_SUBWORD_GRAM + 1, embedding_dim=self.dim_len_emb
+        )
+        self.dim_feature = self.dim_len_emb + self.roberta.config.hidden_size * 2
         self.linear_cls_1 = nn.Linear(self.dim_feature, self.dim_feature)
         self.linear_cls_2 = nn.Linear(self.dim_feature, self.dim_feature)
         self.dropout = nn.Dropout(0.2)
@@ -54,35 +54,43 @@ class EmbedModel(BaseModel):
     def embed_sentences(self, input_ids_batch, input_masks_batch):
         with torch.no_grad():
             self.roberta.eval()
-            model_output = self.roberta(input_ids_batch, 
-                                        attention_mask=input_masks_batch,
-                                        output_hidden_states=True,
-                                        output_attentions=False,
-                                        return_dict=True)
-            sentence_embeddings = model_output.hidden_states[-1]  # [batch_size, seq_len, hidden_size]
+            model_output = self.roberta(
+                input_ids_batch,
+                attention_mask=input_masks_batch,
+                output_hidden_states=True,
+                output_attentions=False,
+                return_dict=True,
+            )
+            sentence_embeddings = model_output.hidden_states[
+                -1
+            ]  # [batch_size, seq_len, hidden_size]
             sentence_embeddings = sentence_embeddings[:, 1:, :].detach()  # remove <s>
             return sentence_embeddings
-        raise Exception('Should not reach here')
+        raise Exception("Should not reach here")
         return None
 
     def forward(self, input_ids_batch, input_masks_batch, spans_batch):
-
         sentence_embeddings = self.embed_sentences(input_ids_batch, input_masks_batch)
-        assert len(input_masks_batch) == len(input_ids_batch) == len(spans_batch) == sentence_embeddings.shape[0]
+        assert (
+            len(input_masks_batch)
+            == len(input_ids_batch)
+            == len(spans_batch)
+            == sentence_embeddings.shape[0]
+        )
 
         span_embs_list = []
         for sent_emb, spans in zip(sentence_embeddings, spans_batch):
-            ''' Length Embedding '''
+            """Length Embedding"""
             lens = [[r - l + 1 for l, r in spans]]
             len_idxs = torch.as_tensor(lens, dtype=torch.long)
             # ipdb.set_trace()
             len_embs = self.length_embed(len_idxs)[0]
-            ''' Token Embeddings '''
+            """ Token Embeddings """
             l_idxs = [l for l, r in spans]
             r_idxs = [r for l, r in spans]
             l_embs = sent_emb[l_idxs]
             r_embs = sent_emb[r_idxs]
-            ''' Span Embeddings '''
+            """ Span Embeddings """
             span_embs = torch.cat([l_embs, r_embs, len_embs], dim=-1)
             assert span_embs.shape == (len(spans), self.dim_feature)
             span_embs_list.append(span_embs)
@@ -96,31 +104,45 @@ class EmbedModel(BaseModel):
         logits = logits.squeeze(-1)
         return self.sigmoid(logits)
 
-
     def predict(self, batches):
         self.eval()
         spans_per_sentence = dict()
         with torch.no_grad():
-
             # this is messy, improve later
             # probably should move this outside class?
-            for original_sentence_ids,input_ids_batch, input_masks_batch, possible_spans_batch in tqdm(batches, ncols=100, desc='Pred'):
-                pred_probs = self(input_ids_batch, input_masks_batch, possible_spans_batch)
+            for (
+                original_sentence_ids,
+                input_ids_batch,
+                input_masks_batch,
+                possible_spans_batch,
+            ) in tqdm(batches, ncols=100, desc="Pred"):
+                pred_probs = self(
+                    input_ids_batch, input_masks_batch, possible_spans_batch
+                )
                 pred_probs = pred_probs.detach().cpu().numpy()
-                assert len(pred_probs) == sum([len(spans) for spans in possible_spans_batch])
-                assert input_ids_batch.shape[0] == input_masks_batch.shape[0] == len(possible_spans_batch)
+                assert len(pred_probs) == sum(
+                    [len(spans) for spans in possible_spans_batch]
+                )
+                assert (
+                    input_ids_batch.shape[0]
+                    == input_masks_batch.shape[0]
+                    == len(possible_spans_batch)
+                )
                 i_prob = 0
                 i_sent = 0
                 for possible_spans in possible_spans_batch:
                     spans_per_sentence[original_sentence_ids[i_sent]] = []
                     for l, r in possible_spans:
-                        spans_per_sentence[original_sentence_ids[i_sent]].append((l, r, pred_probs[i_prob]))
+                        spans_per_sentence[original_sentence_ids[i_sent]].append(
+                            (l, r, pred_probs[i_prob])
+                        )
                         i_prob += 1
                     i_sent += 1
 
         return spans_per_sentence
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     model = EmbedModel()
-    model.load_state_dict(torch.load('models/ucphrase.pt'))
+    model.load_state_dict(torch.load("models/ucphrase.pt"))
     print(model)

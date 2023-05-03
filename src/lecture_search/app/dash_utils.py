@@ -6,7 +6,7 @@ import utils
 def get_transcription_cards(transcriptions:dict) -> typing.List[dmc.Paper]:
     
     #print(words_stem_map)
-    candidates,_ = utils.get_filtered_candidates("data/filtered_candidates.json")
+    _,candidates = utils.get_filtered_candidates("data/filtered_candidates.json")
 
     
     papers = []

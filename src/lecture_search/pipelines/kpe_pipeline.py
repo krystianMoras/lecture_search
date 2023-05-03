@@ -24,7 +24,9 @@ class KPEPipeline:
         # an input to pipeline should be a list of pdf files probably
         flatmap, sent_id_to_doc_id, ucphrased = KPEPipeline.preprocess_files(files, self.is_train)
         original_sentence_ids = list(flatmap) # this probably makes datapipes useless
-        output = self.inference(list(ucphrased)[:1])
+        output = self.inference(list(ucphrased))
+        # with open("span_probs.json", "w") as f:
+        #     json.dump(output,f)
         candidates = self.get_candidates(original_sentence_ids,sent_id_to_doc_id, output)
         return candidates
     
@@ -54,12 +56,13 @@ class KPEPipeline:
         
         return self.model.predict(ucphrased) # improve this
 
-    def get_candidates(self,original_sentence_ids,sent_id_to_doc_id, result, threshold=0.1):
+    def get_candidates(self,original_sentence_ids,sent_id_to_doc_id, result, threshold=0.9):
 
         candidates = {}
         for sentence_id, span_probs in result.items():
             for l_idx, r_idx, prob in span_probs:
                 if prob > threshold:
+                    print(prob)
                     tokens = self.tokenizer.sentence_ids_to_tokens(original_sentence_ids[sentence_id][1]["ids"][l_idx: r_idx + 1])
                     candidate = self.tokenizer.roberta_tokens_to_str(tokens)
                     doc_id = sent_id_to_doc_id[sentence_id]
@@ -83,10 +86,10 @@ if __name__ == "__main__":
     tokenizer = UCPhraseTokenizer()
 
     pipeline = KPEPipeline(model, tokenizer, is_train=False)
-    candidates = pipeline(["data/tokenized_id_transcriptions.json"])
+    candidates = pipeline(["data/tokenized_id_arxiv.json"])
     
     # save to txt
-    with open('candidates.json', 'w') as f:
+    with open('candidates_arxiv.json', 'w') as f:
         json.dump(candidates, f)
 
 

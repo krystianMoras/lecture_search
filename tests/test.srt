@@ -1,0 +1,31 @@
+1
+00:00:00,000 --> 00:00:06,560
+ Hello everyone, at today's meeting we will tackle the most important architecture proposed
+
+2
+00:00:06,560 --> 00:00:11,840
+ in the subject of natural language processing in the last six years, an architecture that
+
+3
+00:00:11,840 --> 00:00:18,560
+ has marked a new era in NLP, but also an architecture that is quite hard to understand
+
+4
+00:00:18,560 --> 00:00:21,400
+ because there is a lot going on.
+
+5
+00:00:21,400 --> 00:00:27,000
+ In today's lecture I will talk about the transformer architecture, trying to make this idea as
+
+6
+00:00:27,000 --> 00:00:29,000
+ easy to understand as possible.
+
+7
+00:00:29,000 --> 00:00:35,480
+ Moreover, I will describe the attention mechanism, which is a little bit older than the transformer,
+
+8
+00:00:35,480 --> 00:00:38,560
+ but is a really related concept.

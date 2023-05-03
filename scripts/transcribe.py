@@ -39,7 +39,7 @@ def video_to_wav(path: Path, wav_path: Path) -> int:
 
 
 def wav_to_srt(wav_path: Path) -> int:
-    srt_path = transcriptions_path / wav_path.with_suffix(".wav.srt").name
+    srt_path = transcriptions_path / wav_path.stem
 
     if srt_path.exists():
         logger.info(f"File {srt_path} already exists, skipping")

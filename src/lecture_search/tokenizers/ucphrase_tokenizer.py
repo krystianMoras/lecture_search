@@ -87,6 +87,6 @@ class UCPhraseTokenizer:
 
 
 if __name__ == "__main__":
-    with open("data/transcriptions.json","r") as f:
+    with open("data/arxiv.json","r") as f:
         transcriptions = json.load(f)
-    UCPhraseTokenizer().tokenize_docs(transcriptions,Path("data")/"tokenized_transcriptions.json",Path("data")/"tokenized_id_transcriptions.json")
+    UCPhraseTokenizer().tokenize_docs(transcriptions,Path("data")/"tokenized_arxiv.json",Path("data")/"tokenized_id_arxiv.json")

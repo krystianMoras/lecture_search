@@ -51,3 +51,20 @@ Run
 ```bash
 python scripts/transcribe.py
 ```
+
+
+## extract_phrases.py
+
+dm me for link to ucphrase model
+
+in config.yaml set
+
+```yaml
+
+results_path: "./data"
+candidates_file_name: "results.json"
+save_intermediate: True
+
+```
+
+for extraction currently only .srt files are supported
