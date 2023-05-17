@@ -1,8 +1,10 @@
 import dash
-from dash import html, dcc, callback, Input, Output
+from dash import html
 
 dash.register_page(__name__)
 
-layout = html.Div(children=[
-    html.H1("Search page"),
-])
+layout = html.Div(
+    children=[
+        html.H1("Search page"),
+    ]
+)

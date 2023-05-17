@@ -1,6 +1,8 @@
-from lecture_search.utils.datapipe import process_docs
-from torchdata.datapipes.iter import IterableWrapper
 import typing
+
+from torchdata.datapipes.iter import IterableWrapper
+
+from lecture_search.utils.datapipe import process_docs
 
 
 class KeyPhraseExtractionPipeline:

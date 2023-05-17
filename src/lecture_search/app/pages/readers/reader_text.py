@@ -1,13 +1,14 @@
-from dash import html, callback, Input, Output, State, Patch, ALL
-from dash import dcc
-from dash_selectable import DashSelectable
-from dash_extensions import EventListener
-import dash_mantine_components as dmc
-from pathlib import Path
-import dash
-import lecture_search.app.candidate_utils as candidate_utils
-from dash_iconify import DashIconify
 import string
+from pathlib import Path
+
+import dash
+import dash_mantine_components as dmc
+from dash import ALL, Input, Output, Patch, State, callback, dcc, html
+from dash_extensions import EventListener
+from dash_iconify import DashIconify
+from dash_selectable import DashSelectable
+
+import lecture_search.app.candidate_utils as candidate_utils
 
 dash.register_page(
     __name__,

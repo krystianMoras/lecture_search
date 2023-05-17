@@ -1,7 +1,9 @@
-from typing import List, Dict, Any
-from pathlib import Path
-import srt
 import logging
+from pathlib import Path
+from typing import Any, Dict, List
+
+import srt
+
 from lecture_search.utils.file_connector import FileConnector
 
 logger = logging.getLogger(__name__)

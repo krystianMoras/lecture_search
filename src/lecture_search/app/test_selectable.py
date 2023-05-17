@@ -1,14 +1,11 @@
 import dash
-from dash.dependencies import Input, Output
-from dash import html
-from dash_selectable import DashSelectable
-from dash_extensions.enrich import DashProxy, html, Input, Output, State, ALL
-from dash_extensions import EventListener
-from dash.exceptions import PreventUpdate
-from dash import dcc
-from dash import Patch
 import dash_mantine_components as dmc
+from dash import Patch, dcc
+from dash.exceptions import PreventUpdate
+from dash_extensions import EventListener
+from dash_extensions.enrich import ALL, DashProxy, Input, Output, State, html
 from dash_iconify import DashIconify
+from dash_selectable import DashSelectable
 
 app = DashProxy()
 event = {

@@ -1,6 +1,6 @@
-import dash
-import dash_mantine_components as dmc
 import typing
+
+import dash_mantine_components as dmc
 import utils
 from dash_iconify import DashIconify
 

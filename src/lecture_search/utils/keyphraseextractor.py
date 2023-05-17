@@ -1,16 +1,18 @@
-from enum import Enum
-from lecture_search.utils.srt_connector import SrtConnector
-from lecture_search.utils.slide_notes_connector import SlideNotesConnector
-from pathlib import Path
 import json
-import lecture_search.utils.kpe_pipeline as kpe_pipeline
-from lecture_search.utils.tokenizer import UCPhraseTokenizer
-from lecture_search.model.ucphrase_model import EmbedModel
-import torch
-import numpy as np
 import typing
+from enum import Enum
 from functools import singledispatch
+from pathlib import Path
+
+import numpy as np
+import torch
 from nltk.corpus import stopwords
+
+import lecture_search.utils.kpe_pipeline as kpe_pipeline
+from lecture_search.model.ucphrase_model import EmbedModel
+from lecture_search.utils.slide_notes_connector import SlideNotesConnector
+from lecture_search.utils.srt_connector import SrtConnector
+from lecture_search.utils.tokenizer import UCPhraseTokenizer
 
 
 @singledispatch

@@ -1,11 +1,11 @@
-from lecture_search.utils.file_connector import FileConnector
-from pypdf import PdfReader
 import re
-import typing
 from pathlib import Path
-import json
-from typing import Dict, Any
+from typing import Any, Dict
+
 from nltk import sent_tokenize
+from pypdf import PdfReader
+
+from lecture_search.utils.file_connector import FileConnector
 
 
 class SlideNotesConnector(FileConnector):

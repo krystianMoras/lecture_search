@@ -1,6 +1,6 @@
 import spacy
 
-nlp = spacy.load('en_core_web_sm')
+nlp = spacy.load("en_core_web_sm")
 
 
 def merge_phrases(doc):
@@ -14,15 +14,14 @@ def merge_phrases(doc):
             retokenizer.merge(np, attrs=attrs)
     return doc
 
-class FileConnector:
 
+class FileConnector:
     @staticmethod
     def to_json(file):
         raise NotImplementedError
 
     @staticmethod
     def get_nouns(text):
-
         spacy_tokens = nlp(text)
         spacy_tokens = merge_phrases(spacy_tokens)
         nouns = set()
@@ -30,11 +29,7 @@ class FileConnector:
             if token.pos_ == "NOUN":
                 nouns.add(token.text)
         return nouns
-    
+
     @staticmethod
     def get_raw_text(file):
         raise NotImplementedError
-
-
-
-        

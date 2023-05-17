@@ -1,5 +1,5 @@
-from torchdata.datapipes.iter import IterDataPipe
 import torch
+from torchdata.datapipes.iter import IterDataPipe
 
 
 class UCPhraseDataPipe(IterDataPipe):

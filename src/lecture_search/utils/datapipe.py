@@ -1,8 +1,8 @@
-from torchdata.datapipes.iter import (
-    IterDataPipe,
-)
-from lecture_search.utils.ucphrase_pipe import UCPhraseDataPipe
 import typing
+
+from torchdata.datapipes.iter import IterDataPipe
+
+from lecture_search.utils.ucphrase_pipe import UCPhraseDataPipe
 
 
 def process_docs(docs_pipe: IterDataPipe) -> typing.Tuple[IterDataPipe, IterDataPipe]:

@@ -1,5 +1,6 @@
-import srt
 import bisect
+
+import srt
 
 
 class VideoSubtitles:

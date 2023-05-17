@@ -1,15 +1,14 @@
-from langchain.llms import LlamaCpp
-from llama_index import LLMPredictor, ServiceContext
-from typing import List, Tuple
-from llama_index import Document
-from lecture_search.utils.slide_notes_connector import SlideNotesConnector
+import json
 from pathlib import Path
+from typing import List, Tuple
+
+from langchain.llms import LlamaCpp
+from llama_index import Document, LLMPredictor, PromptHelper, ServiceContext
 from llama_index.docstore import SimpleDocumentStore
 from llama_index.node_parser import SimpleNodeParser
+
 from lecture_search.indices.keyphrase_index import KeyPhraseTableIndex
-from langchain.llms.base import LLM
-from llama_index import PromptHelper
-import json
+from lecture_search.utils.slide_notes_connector import SlideNotesConnector
 
 
 class LlamaTest(LlamaCpp):
