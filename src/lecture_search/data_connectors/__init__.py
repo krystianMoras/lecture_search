@@ -1,1 +1,1 @@
-import lecture_search.data_connectors.slide_notes_connector
+import lecture_search.utils.slide_notes_connector

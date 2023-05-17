@@ -101,7 +101,7 @@ if __name__ == "__main__":
     import networkx as nx
     G = nx.read_gml(r"data/phrase_hierarchy.gml")
 
-    from lecture_search.data_connectors.slide_notes_connector import SlideNotesConnector
+    from lecture_search.utils.slide_notes_connector import SlideNotesConnector
     from pathlib import Path
     da_pattern = r'\[[0-9]+\]'
     documents = SlideNotesConnector().load_data([Path("decision_analysis/da-lec1-notes.pdf"),Path("decision_analysis/da-lec2-notes.pdf")],da_pattern)

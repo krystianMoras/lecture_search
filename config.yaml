@@ -2,13 +2,14 @@ da_pattern: '\[[0-9]+\]'
 
 whisper_cpp_executable_path: "./whisper.cpp/main.exe"
 whisper_models_path: "./models/whisper"
-whisper_model_name: "ggml-base.en.bin"
+whisper_model_name: "ggml-small-q5_0.bin"
 assets_path: "./assets"
 videos_path: "./assets/videos"
+text_path: "./assets/text"
 audio_path: "./assets/audio"
 transcriptions_path: "./assets/transcriptions"
 
 kpe_model_path: "models/ucphrase/ucphrase.pt"
 results_path: "./data"
-candidates_file_name: "results.json"
+candidates_file_name: "results_decision_analysis_slides.json"
 save_intermediate: True

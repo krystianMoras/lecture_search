@@ -23,6 +23,12 @@ def get_videos_to_process() -> Path:
             yield video
 
 
+def get_wavs_to_process() -> Path:
+    for wav in audio_path.iterdir():
+        if wav.suffix == ".wav":
+            yield wav
+
+
 def video_to_wav(path: Path, wav_path: Path) -> int:
     if wav_path.exists():
         logger.info(f"File {wav_path} already exists, skipping")
@@ -41,7 +47,7 @@ def video_to_wav(path: Path, wav_path: Path) -> int:
 def wav_to_srt(wav_path: Path) -> int:
     srt_path = transcriptions_path / wav_path.stem
 
-    if srt_path.exists():
+    if srt_path.with_suffix(".srt").exists():
         logger.info(f"File {srt_path} already exists, skipping")
         return 0
 
@@ -50,7 +56,8 @@ def wav_to_srt(wav_path: Path) -> int:
         f"{wav_path}",
         "-t",
         "4",  # 4 threads
-        "-l",
+        "--max-len",
+        "16" "-l",
         "auto",  # language auto
         "-m",
         f"{whisper_model_path.as_posix()}",
@@ -79,4 +86,5 @@ if __name__ == "__main__":
     for video in get_videos_to_process():
         wav_path = audio_path / video.with_suffix(".wav").name
         video_to_wav(video, wav_path)
+    for wav_path in get_wavs_to_process():
         wav_to_srt(wav_path)

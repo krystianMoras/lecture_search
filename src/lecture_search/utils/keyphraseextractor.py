@@ -1,5 +1,6 @@
 from enum import Enum
 from lecture_search.utils.srt_connector import SrtConnector
+from lecture_search.utils.slide_notes_connector import SlideNotesConnector
 from pathlib import Path
 import json
 import lecture_search.utils.kpe_pipeline as kpe_pipeline
@@ -31,9 +32,7 @@ class FileTypes(str, Enum):
     SRT = ".srt"
 
 
-connector_map = {
-    FileTypes.SRT: SrtConnector,
-}
+connector_map = {FileTypes.SRT: SrtConnector, FileTypes.PDF: SlideNotesConnector}
 
 
 class KeyPhraseExtractor:

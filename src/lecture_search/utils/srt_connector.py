@@ -79,3 +79,8 @@ class SrtConnector(FileConnector):
     def get_raw_text(file):
         subtitles = SrtConnector.parse_srt_file(file)
         return " ".join([subtitle.content.lstrip().rstrip() for subtitle in subtitles])
+
+    @staticmethod
+    def save_srt(file_path: Path, subtitles: List[srt.Subtitle]):
+        with open(file_path, "w") as f:
+            f.write(srt.compose(subtitles))

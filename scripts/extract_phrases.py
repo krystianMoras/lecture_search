@@ -6,12 +6,23 @@ config = yaml.safe_load(open("config.yaml"))
 
 
 if __name__ == "__main__":
-    kpe = KeyPhraseExtractor(model_path=config["kpe_model_path"],results_path=Path(config["results_path"]))
+    kpe = KeyPhraseExtractor(
+        model_path=config["kpe_model_path"], results_path=Path(config["results_path"])
+    )
     kpe.extract_from_files(
         [
-            r"assets\transcriptions\Natural language processing - lecture 4 Attention and Transformer.wav.srt.srt",
-            r"assets\transcriptions\Natural language processing - lecture 6 Named Entity Recognition (NER).wav.srt.srt",
-            r"assets\transcriptions\Natural language processing - lecture 7 GPT.wav.srt.srt",
+            r"assets\slides\da-lec1-notes.pdf",
+            r"assets\slides\da-lec2-notes.pdf",
+            r"assets\slides\da-lec3-notes.pdf",
+            r"assets\slides\da-lec4-notes.pdf",
+            r"assets\slides\da-lec5-notes.pdf",
+            r"assets\slides\da-lec6-notes.pdf",
+            r"assets\slides\da-lec7-notes.pdf",
+            r"assets\slides\da-lec8-notes.pdf",
+            r"assets\slides\da-lec9-notes.pdf",
+            r"assets\slides\da-lec10-notes.pdf",
+            r"assets\slides\da-lec11-notes.pdf",
+            r"assets\slides\da-lec12-notes.pdf",
         ],
         config["candidates_file_name"],
         save_intermediate=config["save_intermediate"],
