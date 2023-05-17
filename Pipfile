@@ -1,0 +1,38 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+dash = "*"
+dash-mantine-components = "*"
+pyyaml = "*"
+numpy = "*"
+langchain = "*"
+dash-selectable = "*"
+dash-iconify = "*"
+dash-extensions = "*"
+torchdata = "*"
+transformers = "*"
+spacy = "*"
+torch = "*"
+nltk = "*"
+pypdf = "*"
+srt = "*"
+pandas = "*"
+lecture-search = {editable = true, path = "."}
+dash-bootstrap-components = "*"
+dash-player = "*"
+llama-index = "*"
+
+[dev-packages]
+flake8 = "*"
+black = "*"
+isort = "*"
+mypy = "*"
+pytest = "*"
+flake8-bugbear = "*"
+
+[requires]
+python_version = "3.10"
+python_full_version = "3.10.10"

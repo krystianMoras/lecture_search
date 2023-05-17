@@ -1,2 +1,20 @@
-pypdf=="*"
-sentence_transformers=="*"
+dash
+dash-mantine-components
+pyyaml
+numpy
+langchain
+dash-selectable
+dash-iconify
+dash-extensions
+torchdata
+transformers
+spacy
+torch
+nltk
+pypdf
+srt
+pandas
+dash-bootstrap-components
+dash-player
+llama-index
+-e .
