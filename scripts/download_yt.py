@@ -12,9 +12,12 @@ with open("config.yaml", "r") as f:
 
 
 list_of_urls = [
-    "https://www.youtube.com/watch?v=DYniFHiqCRE",
-    "https://www.youtube.com/watch?v=xHIqmZJejBI",
-    "https://www.youtube.com/watch?v=ZJAYyV3e0gU",
+    "https://www.youtube.com/watch?v=yutQvsj83js",
+    "https://www.youtube.com/watch?v=SCJNES0envM",
+    "https://www.youtube.com/watch?v=CAKdIk_IUQ8",
+    "https://www.youtube.com/watch?v=4-forNUa-CY",
+    "https://www.youtube.com/watch?v=PVA32JD8fXk",
+    "https://www.youtube.com/watch?v=l0lGHHZN3Hw",
 ]
 
 output_path = Path(config["videos_path"])

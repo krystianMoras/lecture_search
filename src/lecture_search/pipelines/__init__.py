@@ -1,2 +1,0 @@
-import lecture_search.pipelines.kpe_pipeline
-import lecture_search.pipelines.ucphrase_pipe
