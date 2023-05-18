@@ -3,8 +3,8 @@ import dash_mantine_components as dmc  # type: ignore
 from dash import Patch, dcc  # type: ignore
 from dash.exceptions import PreventUpdate  # type: ignore
 from dash_extensions import EventListener  # type: ignore
-from dash_extensions.enrich import (ALL, DashProxy, Input,  # type: ignore
-                                    Output, State, html)
+from dash_extensions.enrich import Input  # type: ignore
+from dash_extensions.enrich import ALL, DashProxy, Output, State, html
 from dash_iconify import DashIconify  # type: ignore
 from dash_selectable import DashSelectable  # type: ignore
 

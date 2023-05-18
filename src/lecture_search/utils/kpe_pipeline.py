@@ -1,4 +1,4 @@
-import typing
+from typing import Dict, List, Tuple
 
 from torchdata.datapipes.iter import IterableWrapper  # type: ignore
 
@@ -17,7 +17,7 @@ class KeyPhraseExtractionPipeline:
     def _tokenize(self, doc_obj):
         return self.tokenizer.tokenize_doc(doc_obj)
 
-    def preprocess(self, json_docs: typing.List[typing.Dict]):
+    def preprocess(self, json_docs: List[Dict]):
         for doc_obj in json_docs:
             tokenized_doc, tokenized_id_doc = self._tokenize(doc_obj)
             self.tokenized_docs.append(tokenized_doc)
@@ -39,8 +39,8 @@ class KeyPhraseExtractionPipeline:
     def postprocess(self, model_outputs):
         return self.get_candidates(model_outputs)
 
-    def get_candidates(self, result) -> typing.Dict:
-        candidates = {}
+    def get_candidates(self, result: Dict) -> Dict:
+        candidates: Dict[int, Dict] = {}
         for sentence_id, span_probs in result.items():
             for l_idx, r_idx, prob in span_probs:
                 doc_id = self.sent_id_to_doc_id[sentence_id]
@@ -60,7 +60,7 @@ class KeyPhraseExtractionPipeline:
 
         return candidates
 
-    def __call__(self, json_docs: typing.List[typing.Dict]) -> typing.Dict:
+    def __call__(self, json_docs: List[Dict]) -> Dict:
         sents = self.preprocess(json_docs)
         model_inputs = self._forward(sents)
         result = self.postprocess(model_inputs)

@@ -23,7 +23,7 @@ class SrtConnector(FileConnector):
     @staticmethod
     def merge_sentences(subtitles: List[srt.Subtitle]) -> List[srt.Subtitle]:
         """Returns a list of subtitles, regrouped by sentences from a srt file"""
-        merged_subtitles = []
+        merged_subtitles: List[srt.Subtitle] = []
         current_content = ""
         current_start = None
         current_end = None
@@ -57,7 +57,7 @@ class SrtConnector(FileConnector):
         subtitles: List[srt.Subtitle], document_id: str
     ) -> Dict[str, Any]:
         """Converts a list of subtitles to a list of json objects"""
-        base_object = {"doc_id": document_id}
+        base_object: Dict[str, str | List] = {"doc_id": document_id}
         sents = [
             {
                 "index": subtitle.index,
@@ -78,11 +78,11 @@ class SrtConnector(FileConnector):
         return json_object
 
     @staticmethod
-    def get_raw_text(file):
+    def get_raw_text(file: Path) -> str:
         subtitles = SrtConnector.parse_srt_file(file)
         return " ".join([subtitle.content.lstrip().rstrip() for subtitle in subtitles])
 
     @staticmethod
-    def save_srt(file_path: Path, subtitles: List[srt.Subtitle]):
+    def save_srt(file_path: Path, subtitles: List[srt.Subtitle]) -> None:
         with open(file_path, "w") as f:
             f.write(srt.compose(subtitles))

@@ -1,11 +1,13 @@
-import typing
+from typing import Tuple
 
 from torchdata.datapipes.iter import IterDataPipe  # type: ignore
 
 from lecture_search.utils.ucphrase_pipe import UCPhraseDataPipe
 
 
-def process_docs(docs_pipe: IterDataPipe) -> typing.Tuple[IterDataPipe, IterDataPipe]:
+def process_docs(
+    docs_pipe: IterDataPipe,
+) -> Tuple[IterDataPipe, IterDataPipe, UCPhraseDataPipe]:
     """Process a pipe of documents into document sentence counts and sentences for UCPhraseModel"""
     doc_len = docs_pipe.map(lambda x: (x["doc_id"], len(x["sents"])))
     sent_id_to_ids = docs_pipe.flatmap(lambda x: x["sents"]).enumerate()

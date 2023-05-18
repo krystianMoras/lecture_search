@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from nltk import sent_tokenize  # type: ignore
 from pypdf import PdfReader
@@ -55,7 +55,7 @@ class SlideNotesConnector(FileConnector):
         sentences = []
         for paragraph in paragraphs:
             sentences += sent_tokenize(paragraph)
-        base_object = {"doc_id": file_path.stem}
+        base_object: Dict[str, str | List] = {"doc_id": file_path.stem}
         sents = [
             {"index": i, "content": sentence} for i, sentence in enumerate(sentences)
         ]

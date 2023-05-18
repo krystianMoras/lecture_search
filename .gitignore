@@ -15,3 +15,5 @@ lib
 *.ipynb
 assets
 whisper.cpp
+.idea
+Pipfile.lock

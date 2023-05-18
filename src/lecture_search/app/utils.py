@@ -1,6 +1,6 @@
 import json
 import string
-import typing
+from typing import List, Tuple
 
 from nltk import SnowballStemmer  # type: ignore
 from nltk.tokenize import word_tokenize  # type: ignore
@@ -14,24 +14,21 @@ def get_transcriptions(transcriptions_path: str) -> dict:
         return transcriptions
 
 
-def get_words_stem_map(paragraph: str) -> typing.Dict[str, str]:
+def get_words_stem_map(paragraph: str) -> Tuple[List[str], List[str]]:
     # remove punctuation
     paragraph = paragraph.translate(str.maketrans("", "", string.punctuation))
-
-    words = word_tokenize(paragraph)
-    words_stemmed = []
-    for word in words:
-        words_stemmed.append(STEMMER.stem(word))
+    words: List[str] = word_tokenize(paragraph)
+    words_stemmed = [STEMMER.stem(word) for word in words]
     return words, words_stemmed
 
 
-def get_filtered_candidates(path_to_filtered: str) -> typing.List[str]:
+def get_filtered_candidates(path_to_filtered: str) -> Tuple[List[str], List[str]]:
     with open(path_to_filtered, "r") as f:
         filtered_candidates = json.load(f)
         return list(filtered_candidates.keys()), list(filtered_candidates.values())
 
 
-def find_all_occurrences(search: typing.List[str], searched: typing.List[str]):
+def find_all_occurrences(search: List[str], searched: List[str]):
     all_indices = [i for i, x in enumerate(searched) if x == search[0]]
     occurence_ids = []
     for index in all_indices:
@@ -41,10 +38,10 @@ def find_all_occurrences(search: typing.List[str], searched: typing.List[str]):
 
 
 def find_words_to_highlight(
-    candidates: typing.List[str],
-    words: typing.List[str],
-    words_stemmed: typing.List[str],
-) -> typing.List[str]:
+    candidates: List[str],
+    words: List[str],
+    words_stemmed: List[str],
+) -> List[str]:
     highlights = []
     for candidate in candidates:
         candidate_split = candidate.split(" ")

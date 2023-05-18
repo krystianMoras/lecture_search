@@ -34,7 +34,10 @@ class FileTypes(str, Enum):
     SRT = ".srt"
 
 
-connector_map = {FileTypes.SRT: SrtConnector, FileTypes.PDF: SlideNotesConnector}
+connector_map = {
+    FileTypes.SRT.value: SrtConnector,
+    FileTypes.PDF.value: SlideNotesConnector,
+}
 
 
 class KeyPhraseExtractor:
@@ -63,9 +66,8 @@ class KeyPhraseExtractor:
     ):
         objs = []
         doc_id_to_path = {}
-        for file_path in file_paths:
-            file_path = Path(file_path)
-
+        for path in file_paths:
+            file_path = Path(path)
             connector = self.get_connector(file_path)
             doc_id_to_path[file_path.stem] = file_path
 
