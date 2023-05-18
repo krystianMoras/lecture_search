@@ -1,21 +1,23 @@
-import dash
-from dash.dependencies import Input, Output
-from dash import html
-from dash_selectable import DashSelectable
-from dash_extensions.enrich import DashProxy, html, Input, Output, State, ALL
-from dash_extensions import EventListener
-from dash.exceptions import PreventUpdate
-from dash import dcc
-from dash import Patch
-import dash_mantine_components as dmc
-from dash_iconify import DashIconify
+import dash  # type: ignore
+import dash_mantine_components as dmc  # type: ignore
+from dash import Patch, dcc  # type: ignore
+from dash.exceptions import PreventUpdate  # type: ignore
+from dash_extensions import EventListener  # type: ignore
+from dash_extensions.enrich import Input  # type: ignore
+from dash_extensions.enrich import ALL, DashProxy, Output, State, html
+from dash_iconify import DashIconify  # type: ignore
+from dash_selectable import DashSelectable  # type: ignore
 
 app = DashProxy()
 event = {
     "event": "mouseup",
     "props": ["srcElement.className", "srcElement.innerText"],
 }
-text_that_is_being_selected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. Maecenas congue ligula ac quam viverra nec consectetur ante hendrerit."
+selected_text = (
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit "
+    "amet ipsum mauris. Maecenas congue ligula ac quam viverra nec consectetur ante "
+    "hendrerit."
+)
 
 app.layout = html.Div(
     [
@@ -24,7 +26,7 @@ app.layout = html.Div(
             DashSelectable(
                 id="dash-selectable",
                 children=[
-                    html.Div(text_that_is_being_selected, id="original"),
+                    html.Div(selected_text, id="original"),
                 ],
             ),
             events=[event],
@@ -74,7 +76,7 @@ def update_phrases(selected_phrases):
     prevent_initial_call=True,
 )
 def update_original_text(selected_phrases):
-    new_text = [text_that_is_being_selected]
+    new_text = [selected_text]
 
     for i in selected_phrases:
         newArray = []

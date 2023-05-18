@@ -1,10 +1,12 @@
 # adapted from https://github.com/xgeric/UCPhrase-exp
-# Xiaotao Gu*, Zihan Wang*, Zhenyu Bi, Yu Meng, Liyuan Liu, Jiawei Han, Jingbo Shang, "UCPhrase: Unsupervised Context-aware Quality Phrase Tagging", in Proc. of 2021 ACM SIGKDD Int. Conf. on Knowledge Discovery and Data Mining (KDD'21), Aug. 2021
-import torch.nn as nn
-import torch
-from tqdm import tqdm
-import transformers
+# Xiaotao Gu*, Zihan Wang*, Zhenyu Bi, Yu Meng, Liyuan Liu, Jiawei Han, Jingbo Shang,
+# "UCPhrase: Unsupervised Context-aware Quality Phrase Tagging", in Proc. of 2021 ACM
+# SIGKDD Int. Conf. on Knowledge Discovery and Data Mining (KDD'21), Aug. 2021
 
+import torch
+import torch.nn as nn
+import transformers  # type: ignore
+from tqdm import tqdm
 
 # settings
 MAX_SENT_LEN = 64
@@ -81,13 +83,13 @@ class EmbedModel(BaseModel):
         span_embs_list = []
         for sent_emb, spans in zip(sentence_embeddings, spans_batch):
             """Length Embedding"""
-            lens = [[r - l + 1 for l, r in spans]]
+            lens = [[right - left + 1 for left, right in spans]]
             len_idxs = torch.as_tensor(lens, dtype=torch.long)
             # ipdb.set_trace()
             len_embs = self.length_embed(len_idxs)[0]
             """ Token Embeddings """
-            l_idxs = [l for l, r in spans]
-            r_idxs = [r for l, r in spans]
+            l_idxs = [left for left, _ in spans]
+            r_idxs = [right for _, right in spans]
             l_embs = sent_emb[l_idxs]
             r_embs = sent_emb[r_idxs]
             """ Span Embeddings """
@@ -132,9 +134,9 @@ class EmbedModel(BaseModel):
                 i_sent = 0
                 for possible_spans in possible_spans_batch:
                     spans_per_sentence[original_sentence_ids[i_sent]] = []
-                    for l, r in possible_spans:
+                    for left, right in possible_spans:
                         spans_per_sentence[original_sentence_ids[i_sent]].append(
-                            (l, r, pred_probs[i_prob])
+                            (left, right, pred_probs[i_prob])
                         )
                         i_prob += 1
                     i_sent += 1

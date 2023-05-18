@@ -1,12 +1,14 @@
-from torchdata.datapipes.iter import (
-    IterDataPipe,
-)
+from typing import Tuple
+
+from torchdata.datapipes.iter import IterDataPipe  # type: ignore
+
 from lecture_search.utils.ucphrase_pipe import UCPhraseDataPipe
-import typing
 
 
-def process_docs(docs_pipe: IterDataPipe) -> typing.Tuple[IterDataPipe, IterDataPipe]:
-    """Process a pipe of documents into document sentence counts and sentences for UCPhraseModel"""
+def process_docs(
+    docs_pipe: IterDataPipe,
+) -> Tuple[IterDataPipe, IterDataPipe, UCPhraseDataPipe]:
+    """Process a pipe of docs into sentences and counts for UCPhraseModel"""
     doc_len = docs_pipe.map(lambda x: (x["doc_id"], len(x["sents"])))
     sent_id_to_ids = docs_pipe.flatmap(lambda x: x["sents"]).enumerate()
     sents = sent_id_to_ids.max_token_bucketize(

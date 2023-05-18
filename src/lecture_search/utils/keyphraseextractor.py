@@ -1,16 +1,18 @@
-from enum import Enum
-from lecture_search.utils.srt_connector import SrtConnector
-from lecture_search.utils.slide_notes_connector import SlideNotesConnector
-from pathlib import Path
 import json
-import lecture_search.utils.kpe_pipeline as kpe_pipeline
-from lecture_search.utils.tokenizer import UCPhraseTokenizer
-from lecture_search.model.ucphrase_model import EmbedModel
-import torch
-import numpy as np
 import typing
+from enum import Enum
 from functools import singledispatch
-from nltk.corpus import stopwords
+from pathlib import Path
+
+import numpy as np
+import torch
+from nltk.corpus import stopwords  # type: ignore
+
+import lecture_search.utils.kpe_pipeline as kpe_pipeline
+from lecture_search.model.ucphrase_model import EmbedModel
+from lecture_search.utils.slide_notes_connector import SlideNotesConnector
+from lecture_search.utils.srt_connector import SrtConnector
+from lecture_search.utils.tokenizer import UCPhraseTokenizer
 
 
 @singledispatch
@@ -32,7 +34,10 @@ class FileTypes(str, Enum):
     SRT = ".srt"
 
 
-connector_map = {FileTypes.SRT: SrtConnector, FileTypes.PDF: SlideNotesConnector}
+connector_map = {
+    FileTypes.SRT.value: SrtConnector,
+    FileTypes.PDF.value: SlideNotesConnector,
+}
 
 
 class KeyPhraseExtractor:
@@ -61,9 +66,8 @@ class KeyPhraseExtractor:
     ):
         objs = []
         doc_id_to_path = {}
-        for file_path in file_paths:
-            file_path = Path(file_path)
-
+        for path in file_paths:
+            file_path = Path(path)
             connector = self.get_connector(file_path)
             doc_id_to_path[file_path.stem] = file_path
 
@@ -130,8 +134,10 @@ if __name__ == "__main__":
     )
     kpe.extract_from_files(
         [
-            r"assets\transcriptions\Natural language processing - lecture 4 Attention and Transformer.wav.srt.srt",
-            r"assets\transcriptions\Natural language processing - lecture 6 Named Entity Recognition (NER).wav.srt.srt",
+            r"assets\transcriptions\Natural language processing - lecture 4 Attention "
+            "and Transformer.wav.srt.srt",
+            r"assets\transcriptions\Natural language processing - lecture 6 Named "
+            "Entity Recognition (NER).wav.srt.srt",
             r"assets\transcriptions\Natural language processing - lecture 7 GPT.wav.srt.srt",
         ],
         "candidates_nlp.json",

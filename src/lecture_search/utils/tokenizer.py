@@ -1,4 +1,4 @@
-import transformers
+import transformers  # type: ignore
 
 
 class UCPhraseTokenizer:

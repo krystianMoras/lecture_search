@@ -1,5 +1,5 @@
-from torchdata.datapipes.iter import IterDataPipe
 import torch
+from torchdata.datapipes.iter import IterDataPipe  # type: ignore
 
 
 class UCPhraseDataPipe(IterDataPipe):
@@ -48,7 +48,7 @@ class UCPhraseDataPipe(IterDataPipe):
             possible_spans_batch = []
 
             max_len = max([len(sentence["ids"]) for i, sentence in sentence_batch])
-            for i, sentence in sentence_batch:
+            for _, sentence in sentence_batch:
                 input_id = sentence["ids"]
                 word_idxs = sentence["widxs"]
                 if not self.is_train:

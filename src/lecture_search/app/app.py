@@ -1,11 +1,11 @@
-from dash import Dash, html, dcc, Input, Output, State, ALL, MATCH
-import dash
-import dash_bootstrap_components as dbc
-import dash_mantine_components as dmc
-from dash_iconify import DashIconify
-import yaml
-from dash_extensions.enrich import DashProxy
 from pathlib import Path
+
+import dash  # type: ignore
+import dash_bootstrap_components as dbc  # type: ignore
+import dash_mantine_components as dmc  # type: ignore
+import yaml
+from dash import ALL, Input, Output, State, dcc, html  # type: ignore
+from dash_extensions.enrich import DashProxy  # type: ignore
 
 yaml_config = yaml.load(open("config.yaml", "r").read(), Loader=yaml.FullLoader)
 

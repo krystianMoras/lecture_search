@@ -1,9 +1,8 @@
 import json
-import nltk
-from nltk import SnowballStemmer
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-import string
+import typing
+
+from nltk import SnowballStemmer  # type: ignore
+from nltk.tokenize import word_tokenize  # type: ignore
 
 STEMMER = SnowballStemmer("porter", ignore_stopwords=False)
 phrases_path = r"data\results_decision_analysis.json"
@@ -39,9 +38,6 @@ def get_candidates(text, phrases):
 def save_phrases(path, phrases, doc_id):
     with open(path, "w") as f:
         json.dump({doc_id: phrases}, f)
-
-
-import typing
 
 
 def find_occurence(search: typing.List[str], searched: typing.List[str]):

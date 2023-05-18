@@ -1,1 +1,0 @@
-import lecture_search.indices.keyphrase_index
