@@ -2,7 +2,7 @@ import re
 from pathlib import Path
 from typing import Any, Dict
 
-from nltk import sent_tokenize
+from nltk import sent_tokenize  # type: ignore
 from pypdf import PdfReader
 
 from lecture_search.utils.file_connector import FileConnector

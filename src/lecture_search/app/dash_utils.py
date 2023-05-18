@@ -1,8 +1,9 @@
 import typing
 
-import dash_mantine_components as dmc
-import utils
-from dash_iconify import DashIconify
+import dash_mantine_components as dmc  # type: ignore
+from dash_iconify import DashIconify  # type: ignore
+
+from lecture_search.app import utils
 
 
 def get_transcription_cards(transcriptions: dict) -> typing.List[dmc.Paper]:

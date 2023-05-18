@@ -1,6 +1,6 @@
 import bisect
 
-import srt
+import srt  # type: ignore
 
 
 class VideoSubtitles:

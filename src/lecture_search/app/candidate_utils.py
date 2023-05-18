@@ -1,8 +1,8 @@
 import json
 import typing
 
-from nltk import SnowballStemmer
-from nltk.tokenize import word_tokenize
+from nltk import SnowballStemmer  # type: ignore
+from nltk.tokenize import word_tokenize  # type: ignore
 
 STEMMER = SnowballStemmer("porter", ignore_stopwords=False)
 phrases_path = r"data\results_decision_analysis.json"

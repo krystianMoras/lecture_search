@@ -1,6 +1,6 @@
 import typing
 
-from torchdata.datapipes.iter import IterDataPipe
+from torchdata.datapipes.iter import IterDataPipe  # type: ignore
 
 from lecture_search.utils.ucphrase_pipe import UCPhraseDataPipe
 

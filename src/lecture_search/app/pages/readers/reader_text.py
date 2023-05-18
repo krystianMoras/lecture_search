@@ -1,12 +1,13 @@
 import string
 from pathlib import Path
 
-import dash
-import dash_mantine_components as dmc
-from dash import ALL, Input, Output, Patch, State, callback, dcc, html
-from dash_extensions import EventListener
-from dash_iconify import DashIconify
-from dash_selectable import DashSelectable
+import dash  # type: ignore
+import dash_mantine_components as dmc  # type: ignore
+from dash import (ALL, Input, Output, Patch, State, callback,  # type: ignore
+                  dcc, html)
+from dash_extensions import EventListener  # type: ignore
+from dash_iconify import DashIconify  # type: ignore
+from dash_selectable import DashSelectable  # type: ignore
 
 import lecture_search.app.candidate_utils as candidate_utils
 

@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, List
 
-import srt
+import srt  # type: ignore
 
 from lecture_search.utils.file_connector import FileConnector
 

@@ -5,9 +5,9 @@ import json
 import string
 from pathlib import Path
 
-import transformers
-from nltk.stem.snowball import SnowballStemmer
-from nltk.tokenize import sent_tokenize
+import transformers  # type: ignore
+from nltk.stem.snowball import SnowballStemmer  # type: ignore
+from nltk.tokenize import sent_tokenize  # type: ignore
 
 STEMMER = SnowballStemmer("porter", ignore_stopwords=False)
 

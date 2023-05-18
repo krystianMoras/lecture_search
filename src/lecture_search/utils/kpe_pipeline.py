@@ -1,6 +1,6 @@
 import typing
 
-from torchdata.datapipes.iter import IterableWrapper
+from torchdata.datapipes.iter import IterableWrapper  # type: ignore
 
 from lecture_search.utils.datapipe import process_docs
 

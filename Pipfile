@@ -24,6 +24,7 @@ lecture-search = {editable = true, path = "."}
 dash-bootstrap-components = "*"
 dash-player = "*"
 llama-index = "*"
+tqdm = "*"
 
 [dev-packages]
 flake8 = "*"
@@ -32,6 +33,8 @@ isort = "*"
 mypy = "*"
 pytest = "*"
 flake8-bugbear = "*"
+types-tqdm = "*"
+types-pyyaml = "*"
 
 [requires]
 python_version = "3.10"

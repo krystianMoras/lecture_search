@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 import torch
-from nltk.corpus import stopwords
+from nltk.corpus import stopwords  # type: ignore
 
 import lecture_search.utils.kpe_pipeline as kpe_pipeline
 from lecture_search.model.ucphrase_model import EmbedModel

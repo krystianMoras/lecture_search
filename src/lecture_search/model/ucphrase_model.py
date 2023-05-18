@@ -2,7 +2,7 @@
 # Xiaotao Gu*, Zihan Wang*, Zhenyu Bi, Yu Meng, Liyuan Liu, Jiawei Han, Jingbo Shang, "UCPhrase: Unsupervised Context-aware Quality Phrase Tagging", in Proc. of 2021 ACM SIGKDD Int. Conf. on Knowledge Discovery and Data Mining (KDD'21), Aug. 2021
 import torch
 import torch.nn as nn
-import transformers
+import transformers  # type: ignore
 from tqdm import tqdm
 
 # settings
