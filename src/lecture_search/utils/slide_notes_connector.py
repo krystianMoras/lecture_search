@@ -18,7 +18,14 @@ class SlideNotesConnector(FileConnector):
     #         page_text = page.extract_text()
     #         for match in da_pattern.finditer(page_text):
     #             notes = page_text[match.end():]
-    #             notes = notes.replace("\ufb01","fi").replace("\ufb00","ff").replace("\ufb02","fl").replace("\ufb03","ffi").replace("\ufb04","ffl").replace("\u2019","'").replace("\u2013","-") # todo : move this out of here
+    #             notes = (notes
+    #             .replace("\ufb01","fi")
+    #             .replace("\ufb00","ff")
+    #             .replace("\ufb02","fl")
+    #             .replace("\ufb03","ffi")
+    #             .replace("\ufb04","ffl")
+    #             .replace("\u2019","'")
+    #             .replace("\u2013","-")) # todo : move this out of here
     #             transcriptions[doc_id] = notes
     #             documents.append(Document(text=notes,doc_id=doc_id))
 
@@ -27,7 +34,7 @@ class SlideNotesConnector(FileConnector):
         reader = PdfReader(file_path)
         da_pattern = re.compile(pattern)
         total_text = []
-        for i, page in enumerate(reader.pages):
+        for page in reader.pages:
             page_text = page.extract_text()
             for match in da_pattern.finditer(page_text):
                 notes = page_text[match.end() :]

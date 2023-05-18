@@ -3,8 +3,7 @@ from pathlib import Path
 
 import dash  # type: ignore
 import dash_mantine_components as dmc  # type: ignore
-from dash import (ALL, Input, Output, Patch, State, callback,  # type: ignore
-                  dcc, html)
+from dash import ALL, Input, Output, Patch, State, callback, dcc, html  # type: ignore
 from dash_extensions import EventListener  # type: ignore
 from dash_iconify import DashIconify  # type: ignore
 from dash_selectable import DashSelectable  # type: ignore

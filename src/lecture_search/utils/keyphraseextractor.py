@@ -134,8 +134,10 @@ if __name__ == "__main__":
     )
     kpe.extract_from_files(
         [
-            r"assets\transcriptions\Natural language processing - lecture 4 Attention and Transformer.wav.srt.srt",
-            r"assets\transcriptions\Natural language processing - lecture 6 Named Entity Recognition (NER).wav.srt.srt",
+            r"assets\transcriptions\Natural language processing - lecture 4 Attention "
+            "and Transformer.wav.srt.srt",
+            r"assets\transcriptions\Natural language processing - lecture 6 Named "
+            "Entity Recognition (NER).wav.srt.srt",
             r"assets\transcriptions\Natural language processing - lecture 7 GPT.wav.srt.srt",
         ],
         "candidates_nlp.json",

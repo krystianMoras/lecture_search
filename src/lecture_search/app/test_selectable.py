@@ -13,7 +13,11 @@ event = {
     "event": "mouseup",
     "props": ["srcElement.className", "srcElement.innerText"],
 }
-text_that_is_being_selected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. Maecenas congue ligula ac quam viverra nec consectetur ante hendrerit."
+selected_text = (
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit "
+    "amet ipsum mauris. Maecenas congue ligula ac quam viverra nec consectetur ante "
+    "hendrerit."
+)
 
 app.layout = html.Div(
     [
@@ -22,7 +26,7 @@ app.layout = html.Div(
             DashSelectable(
                 id="dash-selectable",
                 children=[
-                    html.Div(text_that_is_being_selected, id="original"),
+                    html.Div(selected_text, id="original"),
                 ],
             ),
             events=[event],
@@ -72,7 +76,7 @@ def update_phrases(selected_phrases):
     prevent_initial_call=True,
 )
 def update_original_text(selected_phrases):
-    new_text = [text_that_is_being_selected]
+    new_text = [selected_text]
 
     for i in selected_phrases:
         newArray = []

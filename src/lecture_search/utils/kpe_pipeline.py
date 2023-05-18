@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 from torchdata.datapipes.iter import IterableWrapper  # type: ignore
 
