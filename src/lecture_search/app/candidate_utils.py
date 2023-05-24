@@ -8,7 +8,7 @@ STEMMER = SnowballStemmer("porter", ignore_stopwords=False)
 phrases_path = r"data\results_decision_analysis.json"
 
 
-def get_phrases_for_context(filenames):
+def get_phrases_for_context(filenames, current_text):
     with open(phrases_path, "r") as f:
         phrases = json.load(f)
 
@@ -18,7 +18,7 @@ def get_phrases_for_context(filenames):
         if file not in phrases:
             continue
         phrases_for_context.update(phrases[file])
-
+    phrases_for_context = {phrase for phrase in phrases_for_context if phrase in current_text}
     return list(phrases_for_context)
 
 
@@ -36,8 +36,15 @@ def get_candidates(text, phrases):
 
 
 def save_phrases(path, phrases, doc_id):
+    try:
+        with open(path, "r") as f:
+            last_json = json.load(f)
+            last_json[doc_id] = phrases
+    except:
+        last_json = {doc_id: phrases}
+
     with open(path, "w") as f:
-        json.dump({doc_id: phrases}, f)
+        json.dump(last_json, f)
 
 
 def find_occurence(search: typing.List[str], searched: typing.List[str]):
