@@ -124,7 +124,12 @@ app.layout = dmc.MantineProvider(
                         placeholder="Search materials",
                         searchable=True,
                         # fix on top
-                        style={"position": "sticky", "top": "0", "zIndex": "1"},
+                        style={
+                            "position": "sticky",
+                            "top": "0",
+                            "zIndex": "1",
+                            "width": "100%",
+                        },
                     ),
                     dash.page_container,
                 ],

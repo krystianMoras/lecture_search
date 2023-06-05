@@ -1,33 +1,35 @@
-# DISCLAIMER : Work in progress
+# Lecture search
 
-contributions, comments, suggestions are welcome
+Browse course materials (pdfs, videos) with help of semantic search.
 
-# Overview
+## Instructions
 
-User should be able to provide materials (lecture slides, videos, articles) and a list of concepts / terms they need to learn. The algorithm should provide a "curriculum", extracted materials in an extensible manner e.g. to learn about multiplication, you should be familiar with addition, provide excerpt from materials about multiplication and suggest reading on addition.
+#todo this will probably not work on the first try ;)
 
-Additionally support simple question answering on provided materials with LLM's
+tldr: to run app,
 
+git clone the repository
 
-### Material fetching
+pipenv install 
 
-For key phrase extraction (KPE) task we are using https://github.com/xgeric/UCPhrase-exp .
+organize course materials the following way
+src/lecture_search/app/assets
+|- courses
+ |- lectures
+  |- files (video/pdf)
 
+run 
+```bash
+python src/lecture_search/app/process_courses.py
+```
 
-KPE + Heuristics -> Co-occurence matrix -> graph distance based fetching of documents 
+wait, report the errors that will surely come
 
-e.g. user asks for materials on multiplication -> addition should be in close distance -> fetch all documents with this key phrase
+...
 
-
-### Local question answering with llm's
-
-for agent https://github.com/jerryjliu/llama_index
-
-running ~7B models on just cpu with 16gb ram -> https://github.com/ggerganov/llama.cpp
-
-vicuna 7b -> https://huggingface.co/eachadea/ggml-vicuna-7b-1.1
-
-
-
+run
+```bash
+python src/lecture_search/app/main.py
+```
 
 
