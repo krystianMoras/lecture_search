@@ -34,7 +34,7 @@ clientside_callback(
             }
             return "";
         }
-        , 1000);
+        , 2000);
     }
     """,
     Output("placeholder_scroll", "children"),

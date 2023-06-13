@@ -31,46 +31,85 @@ def full_text_search(search_string: str):
     ).to_dict(orient="records")
 
 
-def semantic_search(search_string: str):
+def semantic_search(search_string: str, isVideo=False):
     query_embedding = bi_encoder.encode(search_string)
 
-    results = cozo_client.run(
-        """
-        ?[dist, path, slide_id, start_sentence_id, end_sentence_id] := ~passages_slides:semantic{ path, slide_id, start_sentence_id, end_sentence_id, embedding |
-            query: q,
-            k: 10,
-            ef: 200,
-            bind_distance: dist,
-        }, q = vec($query),
-        :order dist
-    """,
-        {"query": query_embedding.tolist()},
-    )
-    results["sentence"] = [None] * len(results)
-    for row in results.itertuples():
-        path, slide_id, start_sentence_id, end_sentence_id = (
-            row.path,
-            row.slide_id,
-            row.start_sentence_id,
-            row.end_sentence_id,
+    if not isVideo:
+        results_slides = cozo_client.run(
+            """
+            ?[dist, path, slide_id, start_sentence_id, end_sentence_id] := ~passages_slides:semantic{ path, slide_id, start_sentence_id, end_sentence_id, embedding |
+                query: q,
+                k: 5,
+                ef: 200,
+                bind_distance: dist,
+            }, q = vec($query),
+            :order dist
+        """,
+            {"query": query_embedding.tolist()},
+        )
+        results_slides["sentence"] = [None] * len(results_slides)
+        for row in results_slides.itertuples():
+            path, slide_id, start_sentence_id, end_sentence_id = (
+                row.path,
+                row.slide_id,
+                row.start_sentence_id,
+                row.end_sentence_id,
+            )
+
+            passage = cozo_client.run(
+                """
+                ?[path, slide_id, sentence_id, sentence] := *slide_sentences[path, slide_id, sentence_id, sentence], path=$path, slide_id=$slide_id, sentence_id >= $start_sentence_id, sentence_id <= $end_sentence_id
+            """,
+                {
+                    "path": path,
+                    "slide_id": slide_id,
+                    "start_sentence_id": start_sentence_id,
+                    "end_sentence_id": end_sentence_id,
+                },
+            ).sentence.tolist()
+
+            # insert passage into results
+            results_slides.at[row.Index, "sentence"] = " ".join(passage)
+        return results_slides.to_dict(orient="records")
+
+    else:
+        results_videos = cozo_client.run(
+            """
+            ?[dist, path, start, end] := ~passages_videos:semantic{ path, start, end, embedding |
+                query: q,
+                k: 10,
+                ef: 200,
+                bind_distance: dist,
+            }, q = vec($query),
+            :order dist
+        """,
+            {"query": query_embedding.tolist()},
         )
 
-        passage = cozo_client.run(
-            """
-            ?[path, slide_id, sentence_id, sentence] := *slide_sentences[path, slide_id, sentence_id, sentence], path=$path, slide_id=$slide_id, sentence_id >= $start_sentence_id, sentence_id <= $end_sentence_id
-        """,
-            {
-                "path": path,
-                "slide_id": slide_id,
-                "start_sentence_id": start_sentence_id,
-                "end_sentence_id": end_sentence_id,
-            },
-        ).sentence.tolist()
+        results_videos["sentence"] = [None] * len(results_videos)
+        for row in results_videos.itertuples():
+            path, start_time, end_time = (
+                row.path,
+                row.start,
+                row.end,
+            )
 
-        # insert passage into results
-        results.at[row.Index, "sentence"] = " ".join(passage)
+            passage = cozo_client.run(
+                """
+                ?[path, start, end, sentence] := *video_sentences[path, start, end, sentence], path=$path, start>=$start_time, end<=$end_time
+                :order path, start
+            """,
+                {
+                    "path": path,
+                    "start_time": start_time,
+                    "end_time": end_time,
+                },
+            ).sentence.tolist()
 
-    return results.to_dict(orient="records")
+            # insert passage into results
+            results_videos.at[row.Index, "sentence"] = " ".join(passage)
+
+        return results_videos.to_dict(orient="records")
 
 
 def create_course_files_relation(client):

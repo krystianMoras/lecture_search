@@ -46,11 +46,51 @@ def build_pdf_result(result):
         )
 
 
+def build_video_result(result):
+    path_to_video = Path("./src/lecture_search/app/assets") / result["path"]
+    return dmc.Card(
+        [
+            dmc.Group(
+                [
+                    dmc.CardSection(
+                        # grey text of path
+                        children=[
+                            dmc.Text(
+                                result["path"],
+                                style={"color": "grey", "font-size": "10px"},
+                            ),
+                            # blue text of time converted from seconds to hh:mm:ss
+                            dmc.Text(
+                                f"{int(result['start']//3600)}:{int((result['start']%3600)//60)}:{int(result['start']%60)} -> {int(result['end']//3600)}:{int((result['end']%3600)//60)}:{int(result['end']%60)}",
+                                style={"color": "blue", "font-size": "10px"},
+                            ),
+                            dmc.Paper(
+                                result["sentence"], shadow="sm", p="sm", radius="sm"
+                            ),
+                        ]
+                    ),
+                    # right bot corner
+                    dmc.Anchor(
+                        "Open in context ->",
+                        href=result["path"] + f"?startTime={result['start']}",
+                        style={"bottom": "15", "right": "15"},
+                    ),
+                ],
+                style={"flex-direction": "column"},
+            ),
+        ],
+        # visible border
+        style={"border": "1px solid black"},
+    )
+
+
 def build_results(results):
     result_cards = []
     for result in results:
         if result["path"].endswith(".pdf"):
             result_cards.append(build_pdf_result(result))
+        if result["path"].endswith(".mp4"):
+            result_cards.append(build_video_result(result))
 
     return result_cards
 
@@ -63,13 +103,13 @@ def preprocess_query(query):
     return query
 
 
-def layout(query, type):
+def layout(query, type, isVideo=False):
     # slide_id, referred_to, sentence, referred_type
     if type == "key_word":
         query = preprocess_query(query)
         results = cozodb.full_text_search(query)
     elif type == "semantic":
-        results = cozodb.semantic_search(query)
+        results = cozodb.semantic_search(query, isVideo=isVideo)
     return html.Div(
         [
             html.Div(children=build_results(results)),
