@@ -1,14 +1,13 @@
-import dash
-
-from dash import html, dcc, callback
 from urllib.parse import unquote
+
+import dash  # type: ignore
+from dash import dcc, html  # type: ignore
+from dash_extensions.EventListener import EventListener  # type: ignore
+
 import lecture_search.app.pages.asset_readers.reader_slides as reader_slides
 import lecture_search.app.pages.asset_readers.reader_video as reader_video
-from dash_extensions.EventListener import EventListener
 
-dash.register_page(
-    __name__, path_template="/<course_name>/<lecture_name>/<asset_name>"
-)
+dash.register_page(__name__, path_template="/<course_name>/<lecture_name>/<asset_name>")
 event = {"event": "scroll", "props": ["target.scrollTop", "target.scrollLeft"]}
 
 

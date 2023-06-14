@@ -1,8 +1,9 @@
-from pytube import YouTube
-from pathlib import Path
-from pytube.helpers import safe_filename
-import logging
 import argparse
+import logging
+from pathlib import Path
+
+from pytube import YouTube  # type: ignore
+from pytube.helpers import safe_filename  # type: ignore
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -21,9 +22,10 @@ def download_yt(url, output_path):
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser()
-    parser.add_argument("--urls", required=True, nargs="+", help="List of urls to download")
+    parser.add_argument(
+        "--urls", required=True, nargs="+", help="List of urls to download"
+    )
 
     group = parser.add_mutually_exclusive_group(required=True)
 
@@ -33,11 +35,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.output_paths:
-        assert len(args.urls) == len(args.output_paths), "Number of urls and output paths must be equal"
+        assert len(args.urls) == len(
+            args.output_paths
+        ), "Number of urls and output paths must be equal"
         for url, output_path in zip(args.urls, args.output_paths):
             # create folders in output path if they don't exist
             Path(output_path).mkdir(parents=True, exist_ok=True)
-            
+
             download_yt(url, Path(output_path))
     else:
         for url in args.urls:

@@ -1,13 +1,20 @@
-from dash_extensions.enrich import DashBlueprint, html, Output, Input, State, dcc
-from dash import callback, clientside_callback
 from pathlib import Path
-import dash_mantine_components as dmc
-import dash
-import dash_player
-import srt
-from lecture_search.app.subtitle_fetcher import parse_subtitles, find_subtitle
-import lecture_search.app.constants as constants
 
+import dash  # type: ignore
+import dash_mantine_components as dmc  # type: ignore
+import dash_player  # type: ignore
+from dash import callback  # type: ignore
+from dash_extensions.enrich import (
+    DashBlueprint,
+    Input,  # type: ignore
+    Output,
+    State,
+    dcc,
+    html,
+)
+
+import lecture_search.app.constants as constants
+from lecture_search.app.subtitle_fetcher import find_subtitle, parse_subtitles
 
 bp = DashBlueprint()
 bp.layout = html.Div(
@@ -96,6 +103,6 @@ def load_video(start_time, file_path):
 def load_subtitles(file_path):
     path_to_subtitles = constants.courses_dir / Path(file_path).with_suffix(".srt")
     print(path_to_subtitles)
-    
+
     if path_to_subtitles.exists():
         return parse_subtitles(path_to_subtitles)

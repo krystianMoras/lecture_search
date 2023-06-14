@@ -18,7 +18,9 @@ def get_phrases_for_context(filenames, current_text):
         if file not in phrases:
             continue
         phrases_for_context.update(phrases[file])
-    phrases_for_context = {phrase for phrase in phrases_for_context if phrase in current_text}
+    phrases_for_context = {
+        phrase for phrase in phrases_for_context if phrase in current_text
+    }
     return list(phrases_for_context)
 
 

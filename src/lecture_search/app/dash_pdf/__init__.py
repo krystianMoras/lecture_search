@@ -1,10 +1,10 @@
 from __future__ import print_function as _
 
+import json
 import os as _os
 import sys as _sys
-import json
 
-import dash as _dash
+import dash as _dash  # type: ignore
 
 # noinspection PyUnresolvedReferences
 from ._imports_ import *
@@ -54,9 +54,9 @@ _js_dist.extend(
     [
         {
             "relative_package_path": "async-{}.js.map".format(async_resource),
-            "external_url": ("https://unpkg.com/{0}@{2}" "/{1}/async-{3}.js.map").format(
-                package_name, __name__, __version__, async_resource
-            ),
+            "external_url": (
+                "https://unpkg.com/{0}@{2}" "/{1}/async-{3}.js.map"
+            ).format(package_name, __name__, __version__, async_resource),
             "namespace": package_name,
             "dynamic": True,
         }
@@ -68,19 +68,23 @@ _js_dist.extend(
     [
         {
             "relative_package_path": "dash_pdf.min.js",
-            "external_url": "https://unpkg.com/{0}@{2}/{1}/{1}.min.js".format(package_name, __name__, __version__),
+            "external_url": "https://unpkg.com/{0}@{2}/{1}/{1}.min.js".format(
+                package_name, __name__, __version__
+            ),
             "namespace": package_name,
         },
         {
             "relative_package_path": "dash_pdf.min.js.map",
-            "external_url": "https://unpkg.com/{0}@{2}/{1}/{1}.min.js.map".format(package_name, __name__, __version__),
+            "external_url": "https://unpkg.com/{0}@{2}/{1}/{1}.min.js.map".format(
+                package_name, __name__, __version__
+            ),
             "namespace": package_name,
             "dynamic": True,
         },
     ]
 )
 
-_css_dist = []
+_css_dist = []  # type: ignore
 
 for _component in __all__:
     setattr(locals()[_component], "_js_dist", _js_dist)

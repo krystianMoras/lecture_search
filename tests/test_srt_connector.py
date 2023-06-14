@@ -1,8 +1,9 @@
-from lecture_search.utils.srt_connector import SrtConnector
-import srt
-
 # import timedelta
 from datetime import timedelta
+
+import srt
+
+from lecture_search.utils.srt_connector import SrtConnector
 
 
 def test_parse_srt_file():

@@ -1,4 +1,3 @@
-transcriptions.txt
 *.pyc
 output.pdf
 *.faiss
@@ -7,7 +6,6 @@ models
 data
 lib
 *.egg-info
-*.ipynb
 assets
 whisper.cpp
 .idea

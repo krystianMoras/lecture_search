@@ -1,11 +1,12 @@
-import dash  # type: ignore
-from dash import html  # type: ignore
-import lecture_search.app.cozo_client as cozodb
-from pathlib import Path
 import base64
-import dash_mantine_components as dmc
-from dash_pdf import DashPdfDocument, DashPdfPage
+
+import dash  # type: ignore
+import dash_mantine_components as dmc  # type: ignore
+from dash import html  # type: ignore
+from dash_pdf import DashPdfDocument, DashPdfPage  # type: ignore
+
 import lecture_search.app.constants as constants
+import lecture_search.app.cozo_client as cozodb
 
 dash.register_page(__name__, path_template="/search")
 
@@ -47,27 +48,26 @@ def build_pdf_result(result):
 
 
 def build_video_result(result):
-    path_to_video = constants.courses_dir / result["path"]
+    constants.courses_dir / result["path"]
+    children = [
+        dmc.Text(
+            result["path"],
+            style={"color": "grey", "font-size": "10px"},
+        ),
+        # blue text of time converted from seconds to hh:mm:ss
+        dmc.Text(
+            f"{int(result['start_time']//3600)}:{int((result['start_time']%3600)//60)}:{int(result['start_time']%60)} -> {int(result['end_time']//3600)}:{int((result['end_time']%3600)//60)}:{int(result['end_time']%60)}",
+            style={"color": "blue", "font-size": "10px"},
+        ),
+        dmc.Paper(result["sentence"], shadow="sm", p="sm", radius="sm"),
+    ]
     return dmc.Card(
         [
             dmc.Group(
                 [
                     dmc.CardSection(
                         # grey text of path
-                        children=[
-                            dmc.Text(
-                                result["path"],
-                                style={"color": "grey", "font-size": "10px"},
-                            ),
-                            # blue text of time converted from seconds to hh:mm:ss
-                            dmc.Text(
-                                f"{int(result['start_time']//3600)}:{int((result['start_time']%3600)//60)}:{int(result['start_time']%60)} -> {int(result['end_time']//3600)}:{int((result['end_time']%3600)//60)}:{int(result['end_time']%60)}",
-                                style={"color": "blue", "font-size": "10px"},
-                            ),
-                            dmc.Paper(
-                                result["sentence"], shadow="sm", p="sm", radius="sm"
-                            ),
-                        ]
+                        children=children
                     ),
                     # right bot corner
                     dmc.Anchor(
@@ -102,6 +102,7 @@ def preprocess_query(query):
     )
     return query
 
+
 def layout(query, type):
     # slide_id, referred_to, sentence, referred_type
     cozo_client = cozodb.get_client(str(constants.courses_dir / "cozo_test.db"))
@@ -110,7 +111,7 @@ def layout(query, type):
         results = cozodb.full_text_search(cozo_client, query)
     elif type == "semantic":
         bi_encoder = cozodb.get_bi_encoder()
-        results = cozodb.semantic_search(cozo_client,query, bi_encoder)
+        results = cozodb.semantic_search(cozo_client, query, bi_encoder)
     return html.Div(
         [
             html.Div(children=build_results(results)),

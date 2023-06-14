@@ -1,7 +1,8 @@
-import lecture_search.utils.kpe_pipeline as kpe_pipeline
-from lecture_search.utils.tokenizer import UCPhraseTokenizer
-from lecture_search.model.ucphrase_model import EmbedModel
 import torch
+
+import lecture_search.utils.kpe_pipeline as kpe_pipeline
+from lecture_search.model.ucphrase_model import EmbedModel
+from lecture_search.utils.tokenizer import UCPhraseTokenizer
 
 
 def test_kpe_pipeline():

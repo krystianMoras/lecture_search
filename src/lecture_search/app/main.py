@@ -1,15 +1,13 @@
-import dash_mantine_components as dmc
-
-from dash import ALL, Input, Output, State, dcc, html
-
-import dash
-from dash_iconify import DashIconify
-from pathlib import Path
-import lecture_search.app.search_bar
-from dash_extensions.enrich import DashProxy, NoOutputTransform
 import argparse
-import lecture_search.app.constants as constants
+from pathlib import Path
 
+import dash  # type: ignore
+import dash_mantine_components as dmc  # type: ignore
+from dash import Input, Output, dcc, html  # type: ignore
+from dash_extensions.enrich import DashProxy, NoOutputTransform  # type: ignore
+from dash_iconify import DashIconify  # type: ignore
+import json
+import lecture_search.app.constants as constants
 
 parser = argparse.ArgumentParser()
 # courses assets path
@@ -25,7 +23,7 @@ app = DashProxy(
     use_pages=True,
     suppress_callback_exceptions=True,
     transforms=[NoOutputTransform()],
-    assets_folder=courses_dir
+    assets_folder=courses_dir,
 )
 
 
@@ -51,7 +49,8 @@ def build_lecture_section(lecture):
             icon=DashIconify(icon=file_suffix_icon_map[file["path"].suffix]),
             href="/" + str(file["path"].relative_to(courses_dir)),
         )
-        for file in files if file["path"].suffix in file_suffix_icon_map.keys()
+        for file in files
+        if file["path"].suffix in file_suffix_icon_map.keys()
     ]
     return file_links
 
@@ -95,12 +94,11 @@ def build_sidebar():
                 dmc.Divider(variant="solid", size="xs"),
             ],
             # .mantine-16kf70y::after {
-#     content: "";
-#     flex: 1 1 0%;
-#     border-top: 1px solid rgb(206, 212, 218);
-#     margin-left: 10px;
-# }
-
+            #     content: "";
+            #     flex: 1 1 0%;
+            #     border-top: 1px solid rgb(206, 212, 218);
+            #     margin-left: 10px;
+            # }
             style={
                 "fontFamily": "Inter, sans-serif",
                 "color": "inherit",
@@ -111,7 +109,7 @@ def build_sidebar():
                 "-mozBoxAlign": "center",
                 "alignItems": "center",
                 "marginTop": "2px",
-            }
+            },
         )
         for course in courses
     ]
@@ -140,8 +138,8 @@ sidebar = html.Div(
                 "justifyContent": "flex-start",
                 "gap": "0px",
                 "paddingRight": "25px",
-                "paddingLeft": "25px"
-            }
+                "paddingLeft": "25px",
+            },
         )
     ],
     style={
@@ -157,7 +155,7 @@ sidebar = html.Div(
         "backgroundColor": "rgb(255, 255, 255)",
         "overflow": "scroll",
         "borderRight": "1px solid rgb(233, 236, 239)",
-    }
+    },
 )
 
 
@@ -183,18 +181,14 @@ app.layout = dmc.MantineProvider(
                     ),
                     dash.page_container,
                 ],
-
                 style={
-
                     "padding": "10px",
                     "marginLeft": "320px",
-                }
+                },
             ),
         ]
     ),
 )
-
-import json
 
 
 @app.callback(

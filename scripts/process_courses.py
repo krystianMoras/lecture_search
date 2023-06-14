@@ -1,14 +1,19 @@
-from enum import Enum
-from pathlib import Path
-import pycozo
 import re
-from typing import List, Dict, Tuple, Optional
-import pypdf
-from nltk import sent_tokenize
-import srt
-from sentence_transformers import SentenceTransformer
-from tqdm import tqdm
+from enum import Enum
 from hashlib import sha256
+from pathlib import Path
+from typing import Dict, List
+import pandas as pd  # type: ignore
+import pycozo  # type: ignore
+import pypdf
+from nltk import sent_tokenize  # type: ignore
+from sentence_transformers import SentenceTransformer  # type: ignore
+from tqdm import tqdm
+import uuid
+
+import argparse
+
+import lecture_search.utils.srt_connector as srt_connector
 
 
 class AssetType(str, Enum):
@@ -18,7 +23,7 @@ class AssetType(str, Enum):
     KADZINSKI_NOTES_PDF = "kadzinski_notes_pdf"
 
 
-def read_pdf_kadzinski_notes(course_dir: Path, kadzinski_notes_path:str) -> List[str]:
+def read_pdf_kadzinski_notes(course_dir: Path, kadzinski_notes_path: str) -> List[str]:
     kadzinski_notes_pattern = re.compile(r"\[[0-9]+\]")
     pdf_path = course_dir / kadzinski_notes_path
     doc = pypdf.PdfReader(open(pdf_path, "rb")).pages
@@ -30,18 +35,21 @@ def read_pdf_kadzinski_notes(course_dir: Path, kadzinski_notes_path:str) -> List
     return notes
 
 
-def read_pdf_text(course_dir:Path, pdf_path:str) -> List[str]:
-    pdf_path = course_dir / pdf_path
-    doc = pypdf.PdfReader(open(pdf_path, "rb")).pages
+def read_pdf_text(course_dir: Path, pdf_path: str) -> List[str]:
+    abs_pdf_path = course_dir / pdf_path
+    doc = pypdf.PdfReader(open(abs_pdf_path, "rb")).pages
     text = []
     for page in doc:
         text.append(page.extract_text())
     return text
 
 
-def parse_course_dir(course_dir: Path) -> Dict[str, Dict[str, List[str]]]:
-    files_relation = {
-        "courses_files": {"headers": ["id", "path", "type", "lecture", "course"], "rows": []}
+def parse_course_dir(course_dir: Path) -> Dict[str, Dict[str, object]]:
+    files_relation: Dict = {
+        "courses_files": {
+            "headers": ["id", "path", "type", "lecture", "course"],
+            "rows": [],
+        }
     }
 
     for course in course_dir.iterdir():
@@ -65,13 +73,13 @@ def parse_course_dir(course_dir: Path) -> Dict[str, Dict[str, List[str]]]:
                         asset_type = AssetType.PDF
                 if asset_type is not None:
                     # sha256 encode path
-                    asset_id = sha256(asset.relative_to(course_dir).as_posix().encode()).hexdigest()
+                    asset_id = sha256(
+                        asset.relative_to(course_dir).as_posix().encode()
+                    ).hexdigest()
                     files_relation["courses_files"]["rows"].append(
                         [
                             asset_id,
-                            str(
-                                asset.relative_to(course_dir).as_posix()
-                            ),
+                            str(asset.relative_to(course_dir).as_posix()),
                             asset_type.value,
                             lecture.name,
                             course.name,
@@ -81,42 +89,13 @@ def parse_course_dir(course_dir: Path) -> Dict[str, Dict[str, List[str]]]:
                     print("Unknown asset type: ", asset)
     return files_relation
 
-# import json
-
-
-# def write_array_to_file(path, array):
-#     with open(path, "w") as f:
-#         json.dump(array, f)
-
-
-# def update_files(force=False):
-
-#     try:
-#         cozo_db.create_fts_index(client)
-#     except:
-#         print("FTS index already exists")
-
-#     try:
-#         cozo_db.create_passages_relations(client)
-#     except:
-#         print("Passages relations already exists")
-#     if force:
-#         embed_slides(client)
-#         embed_videos(client)
-
-#     try:
-#         cozo_db.create_hnsw_index(client)
-#     except:
-#         print("HNSW index already exists")
-
-import pandas as pd
 
 def make_passages_slides(sentences, file_id):
     # change sentences to df grouped by slide_id sorted by sentence_i
     sentences = pd.DataFrame(sentences)
     sentences = sentences.groupby(["slide_i"])
     passages = []
-    for name, group in sentences:
+    for _, group in sentences:
         candidate_passage = ""
         if len(group) < 3:
             # merge all sentences into one passage
@@ -135,7 +114,7 @@ def make_passages_slides(sentences, file_id):
                 }
             )
 
-        for start_idx in range(0, len(group)-3):
+        for start_idx in range(0, len(group) - 3):
             # sliding window of 3 sentences
             end_idx = start_idx + 3
             candidate_passage = " ".join(group.sentence.iloc[start_idx:end_idx])
@@ -157,12 +136,12 @@ def make_passages_slides(sentences, file_id):
 
     return passages
 
+
 def make_passages_videos(sentences, file_id):
     # sliding window of 3 sentences
     passages = []
     sentences = pd.DataFrame(sentences)
-    for start_idx in range(0, len(sentences)-3):
-        
+    for start_idx in range(0, len(sentences) - 3):
         end_idx = start_idx + 3
         candidate_passage = " ".join(sentences.sentence.iloc[start_idx:end_idx])
         passage_id = str(uuid.uuid4())
@@ -180,7 +159,6 @@ def make_passages_videos(sentences, file_id):
 
 
 def passage_relation_slides(passages, bi_encoder):
-
     for passage in tqdm(passages, desc="Embedding passages", total=len(passages)):
         passage["embedding"] = bi_encoder.encode(passage["passage"])
 
@@ -204,7 +182,7 @@ def passage_relation_slides(passages, bi_encoder):
                 "type",
             ],
             "rows": [],
-        }
+        },
     }
     for passage in passages:
         passage_relation["passages_slides"]["rows"].append(
@@ -227,9 +205,7 @@ def passage_relation_slides(passages, bi_encoder):
     return passage_relation
 
 
-
 def passage_relation_videos(passages, bi_encoder):
-
     for passage in tqdm(passages, desc="Embedding passages", total=len(passages)):
         passage["embedding"] = bi_encoder.encode(passage["passage"])
 
@@ -252,7 +228,7 @@ def passage_relation_videos(passages, bi_encoder):
                 "type",
             ],
             "rows": [],
-        }
+        },
     }
     for passage in passages:
         passage_relation["passages_videos"]["rows"].append(
@@ -272,9 +248,10 @@ def passage_relation_videos(passages, bi_encoder):
         )
     return passage_relation
 
+
 def sentence_split_slides(slide_texts):
     sentences = []
-    for slide_number, paragraph in  enumerate(slide_texts):
+    for slide_number, paragraph in enumerate(slide_texts):
         for sentence_number, sentence in enumerate(sent_tokenize(paragraph)):
             sentences.append(
                 {
@@ -285,7 +262,7 @@ def sentence_split_slides(slide_texts):
             )
     return sentences
 
-import lecture_search.utils.srt_connector as srt_connector
+
 def sentence_split_videos(srt_file_path):
     subtitles = srt_connector.SrtConnector.parse_srt_file(srt_file_path)
     merged_subtitles = srt_connector.SrtConnector.merge_sentences(subtitles)
@@ -301,11 +278,9 @@ def sentence_split_videos(srt_file_path):
         )
     return sentences
 
-    
 
-import uuid
-def sentence_relation_slides(slide_sentences, file_id, type:AssetType):
-    relation = {
+def sentence_relation_slides(slide_sentences, file_id, type: str):
+    relation: Dict = {
         "sentences": {
             # sentence_id => sentence, type:String
             "headers": ["sentence_id", "sentence", "type"],
@@ -315,17 +290,20 @@ def sentence_relation_slides(slide_sentences, file_id, type:AssetType):
             # sentence_id => file_id, slide_i, sentence_i
             "headers": ["sentence_id", "file_id", "slide_i", "sentence_i"],
             "rows": [],
-        }
+        },
     }
 
     for sentence in slide_sentences:
         sentence_id = str(uuid.uuid4())
         relation["sentences"]["rows"].append([sentence_id, sentence["sentence"], type])
-        relation["slides_sentences"]["rows"].append([sentence_id, file_id, sentence["slide_i"], sentence["sentence_i"]])
+        relation["slides_sentences"]["rows"].append(
+            [sentence_id, file_id, sentence["slide_i"], sentence["sentence_i"]]
+        )
     return relation
 
-def sentence_relation_videos(video_sentences, file_id, type:AssetType):
-    relation = {
+
+def sentence_relation_videos(video_sentences, file_id, type: AssetType):
+    relation: Dict = {
         "sentences": {
             # sentence_id => sentence, type:String
             "headers": ["sentence_id", "sentence", "type"],
@@ -335,37 +313,48 @@ def sentence_relation_videos(video_sentences, file_id, type:AssetType):
             # sentence_id => file_id, start, end
             "headers": ["sentence_id", "file_id", "start_time", "end_time"],
             "rows": [],
-        }
+        },
     }
 
     for sentence in video_sentences:
         sentence_id = str(uuid.uuid4())
         relation["sentences"]["rows"].append([sentence_id, sentence["sentence"], type])
-        relation["videos_sentences"]["rows"].append([sentence_id, file_id, sentence["start_time"], sentence["end_time"]])
+        relation["videos_sentences"]["rows"].append(
+            [sentence_id, file_id, sentence["start_time"], sentence["end_time"]]
+        )
     return relation
 
-import argparse
-from pathlib import Path
-
-import pycozo
 
 def check_relation_exists(client, relation):
     relations = client.run("::relations")
     # relations is a pandas dataframe relation name is in "name" column
     return relation in relations["name"].values
 
+
 def check_file_processed(client, file_id, type):
     if type == AssetType.PDF or type == AssetType.KADZINSKI_NOTES_PDF:
-        return client.run("?[count(file_id)] := *slides_sentences[sentence_id, file_id, slide_i, sentence_i], file_id=$file_id", {"file_id":file_id}).values[0][0] > 0
+        return (
+            client.run(
+                "?[count(file_id)] := *slides_sentences[sentence_id, file_id, slide_i, sentence_i], file_id=$file_id",
+                {"file_id": file_id},
+            ).values[0][0]
+            > 0
+        )
     elif type == AssetType.VIDEO:
-        return client.run("?[count(file_id)] := *videos_sentences[sentence_id, file_id, start_time, end_time], file_id=$file_id", {"file_id":file_id}).values[0][0] > 0
+        return (
+            client.run(
+                "?[count(file_id)] := *videos_sentences[sentence_id, file_id, start_time, end_time], file_id=$file_id",
+                {"file_id": file_id},
+            ).values[0][0]
+            > 0
+        )
 
-def check_index_exists(client,relation, index):
-    indices = client.run(f"::indices {relation}") 
+
+def check_index_exists(client, relation, index):
+    indices = client.run(f"::indices {relation}")
 
     return index in indices["name"].values
 
-from tqdm import tqdm
 
 if __name__ == "__main__":
     bi_encoder = SentenceTransformer("multi-qa-MiniLM-L6-cos-v1")
@@ -386,7 +375,7 @@ if __name__ == "__main__":
     if not check_relation_exists(cozo_client, "courses_files"):
         cozo_client.run(":create courses_files {id => path, type, lecture, course}")
     # parse course directory
-    course_relation = parse_course_dir(course_dir)
+    course_relation: Dict = parse_course_dir(course_dir)
     # import course relation
     cozo_client.import_relations(course_relation)
 
@@ -394,22 +383,36 @@ if __name__ == "__main__":
         cozo_client.run(":create sentences {sentence_id => sentence, type:String}")
 
     if not check_relation_exists(cozo_client, "slides_sentences"):
-        cozo_client.run(":create slides_sentences {sentence_id => file_id, slide_i, sentence_i}")
+        cozo_client.run(
+            ":create slides_sentences {sentence_id => file_id, slide_i, sentence_i}"
+        )
 
     if not check_relation_exists(cozo_client, "videos_sentences"):
-        cozo_client.run(":create videos_sentences {sentence_id => file_id, start_time, end_time}")
+        cozo_client.run(
+            ":create videos_sentences {sentence_id => file_id, start_time, end_time}"
+        )
 
     if not check_relation_exists(cozo_client, "passages"):
-        cozo_client.run(":create passages {passage_id => embedding:<F32;384>, type:String}")
+        cozo_client.run(
+            ":create passages {passage_id => embedding:<F32;384>, type:String}"
+        )
 
     if not check_relation_exists(cozo_client, "passages_videos"):
-        cozo_client.run(":create passages_videos {passage_id => file_id, start_time, end_time}")
-    
+        cozo_client.run(
+            ":create passages_videos {passage_id => file_id, start_time, end_time}"
+        )
+
     if not check_relation_exists(cozo_client, "passages_slides"):
-        cozo_client.run(":create passages_slides {passage_id => file_id, slide_i, sentence_start, sentence_end}")
+        cozo_client.run(
+            ":create passages_slides {passage_id => file_id, slide_i, sentence_start, sentence_end}"
+        )
 
-
-    for asset in tqdm(course_relation["courses_files"]["rows"], desc="Processing assets", unit="assets", total=len(course_relation["courses_files"]["rows"])):
+    for asset in tqdm(
+        course_relation["courses_files"]["rows"],
+        desc="Processing assets",
+        unit="assets",
+        total=len(course_relation["courses_files"]["rows"]),
+    ):
         if check_file_processed(cozo_client, asset[0], asset[2]):
             continue
         if not (course_dir / asset[1]).exists():
@@ -421,14 +424,13 @@ if __name__ == "__main__":
             passages = make_passages_slides(sentences, asset[0])
             passages_relation = passage_relation_slides(passages, bi_encoder)
 
-
         if asset[2] == AssetType.PDF:
             texts = read_pdf_text(course_dir, asset[1])
             sentences = sentence_split_slides(texts)
             sentences_relation = sentence_relation_slides(sentences, asset[0], asset[2])
             passages = make_passages_slides(sentences, asset[0])
             passages_relation = passage_relation_slides(passages, bi_encoder)
-        
+
         if asset[2] == AssetType.VIDEO:
             srt_path = (course_dir / asset[1]).with_suffix(".srt")
             if not srt_path.exists():
@@ -440,7 +442,7 @@ if __name__ == "__main__":
 
         cozo_client.import_relations(sentences_relation)
         cozo_client.import_relations(passages_relation)
-    
+
     if not check_index_exists(cozo_client, "passages", "semantic"):
         cozo_client.run(
             """
@@ -454,7 +456,8 @@ if __name__ == "__main__":
             extend_candidates: false,
             keep_pruned_connections: false,
         }
-        """)
+        """
+        )
     if not check_index_exists(cozo_client, "sentences", "keyword"):
         cozo_client.run(
             """
@@ -465,13 +468,3 @@ if __name__ == "__main__":
         }
         """
         )
-
-
-
-
-
-
-
-
-
-

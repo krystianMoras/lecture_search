@@ -1,5 +1,6 @@
-import lecture_search.utils.datapipe as datapipe
 from torchdata.datapipes.iter import IterableWrapper
+
+import lecture_search.utils.datapipe as datapipe
 
 
 # run with pytest -s -v tests\test_datapipe.py
@@ -21,7 +22,9 @@ def test_datapipe():
         },
     ]
 
-    doc_len, sent_id_to_ids, sents = datapipe.process_docs(IterableWrapper(id_tokenized))
+    doc_len, sent_id_to_ids, sents = datapipe.process_docs(
+        IterableWrapper(id_tokenized)
+    )
     assert list(doc_len) == [("test_doc", 2), ("test_doc2", 2)]
     sents_list = list(sents)
     assert len(sents_list) == 1

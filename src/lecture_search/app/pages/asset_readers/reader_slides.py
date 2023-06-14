@@ -1,12 +1,17 @@
-from dash_extensions.enrich import DashBlueprint, html, Output, Input, State
-from dash import callback, clientside_callback
 import base64
-from pypdf import PdfReader
 
-from pathlib import Path
-from dash_pdf import DashPdfDocument, DashPdfPage
+from dash import callback, clientside_callback  # type: ignore
+from dash_extensions.enrich import (
+    DashBlueprint,
+    Input,  # type: ignore
+    Output,
+    State,
+    html,
+)
+from dash_pdf import DashPdfDocument, DashPdfPage  # type: ignore
+from pypdf import PdfReader  # type: ignore
+
 import lecture_search.app.constants as constants
-
 
 bp = DashBlueprint()
 bp.layout = html.Div(
@@ -22,8 +27,7 @@ clientside_callback(
     """
     function(children,page){
         // delay to wait for pdf to load
-        setTimeout(function(){
-            
+        setTimeout(function(){            
             var pdfChildren = document.getElementById("pdf-container").children[0].children;
             // get height for page number child
             var totalOffset = 0;

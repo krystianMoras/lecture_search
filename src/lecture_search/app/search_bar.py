@@ -1,9 +1,9 @@
-import dash
-from dash.dependencies import Input, Output, State
-from dash.exceptions import PreventUpdate
-from dash import dcc, html, callback
 import json
-from dash_iconify import DashIconify
+
+from dash import callback, html  # type: ignore
+from dash.dependencies import Input, Output, State  # type: ignore
+from dash.exceptions import PreventUpdate  # type: ignore
+from dash_iconify import DashIconify  # type: ignore
 
 
 @callback(
