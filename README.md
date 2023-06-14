@@ -43,5 +43,21 @@ This will create cozo.db file in your courses_dir that contains all embeddings a
 python src/lecture_search/app/main.py --courses_dir "C:\Users\kryst\Documents\Artificial Intelligence\Artificial Intelligence - sem6\courses"
 ```
 
+4. Bonus - phrase extraction and note generation
 
+for extracting phrases run ./scripts/extract_phrases.py
+
+These extracted phrases could be used for:
+- highlighting #todo
+- linking #todo
+- finding good concepts to generate notes for (see below)
+
+Generating notes script is incomplete - draw inspiration from ./notebooks, however I ran different version of it for my own purposes, here is timelapse of 430 notes for Decision Analysis course being generated in obsidian graph view -> https://www.youtube.com/watch?v=i6B8CVhk0Rk
+
+If you are AI student at PUT and would like to see the notes, dm me.
+
+### Some screenshots
+
+![obraz](https://github.com/krystianMoras/lecture_search/assets/72855171/ea7f4e93-e44d-4ca1-b3cb-4b4004e0b3fd)
+![obraz](https://github.com/krystianMoras/lecture_search/assets/72855171/910ac2df-9004-4692-8447-407aaac7f5db)
 
