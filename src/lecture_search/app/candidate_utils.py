@@ -42,7 +42,7 @@ def save_phrases(path, phrases, doc_id):
         with open(path, "r") as f:
             last_json = json.load(f)
             last_json[doc_id] = phrases
-    except:
+    except FileNotFoundError:
         last_json = {doc_id: phrases}
 
     with open(path, "w") as f:

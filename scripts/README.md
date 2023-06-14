@@ -49,4 +49,4 @@ Run phrase extraction
 python .\scripts\extract_phrases.py --file_paths "C:\Users\kryst\Documents\Artificial Intelligence\Artificial Intelligence - sem6\courses\Natural Language Processing\GPT\Natural language processing - lecture 7 GPT.srt" --kpe_model_path "C:\Users\kryst\Documents\models\ucphrase\ucphrase.pt" --results_path "C:\Users\kryst\Documents\Artificial Intelligence\Artificial Intelligence - sem6\data" --candidates_file_name gpt.json
 ```
 
-for extraction currently only .srt files are supported
+for extraction currently only .srt and pdf files are supported
