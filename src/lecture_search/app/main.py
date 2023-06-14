@@ -7,16 +7,27 @@ from dash_iconify import DashIconify
 from pathlib import Path
 import lecture_search.app.search_bar
 from dash_extensions.enrich import DashProxy, NoOutputTransform
+import argparse
+import lecture_search.app.constants as constants
 
+
+parser = argparse.ArgumentParser()
+# courses assets path
+parser.add_argument("--courses_dir", type=str, required=True)
+
+args = parser.parse_args()
+
+courses_dir = Path(args.courses_dir)
+constants.courses_dir = courses_dir
 
 app = DashProxy(
     __name__,
     use_pages=True,
     suppress_callback_exceptions=True,
     transforms=[NoOutputTransform()],
+    assets_folder=courses_dir
 )
 
-asset_path = Path("./src/lecture_search/app/assets/")
 
 file_suffix_icon_map = {
     ".pdf": "mdi:file-pdf-outline",
@@ -38,9 +49,9 @@ def build_lecture_section(lecture):
         dmc.NavLink(
             label=file["name"],
             icon=DashIconify(icon=file_suffix_icon_map[file["path"].suffix]),
-            href="/" + str(file["path"].relative_to(asset_path)),
+            href="/" + str(file["path"].relative_to(courses_dir)),
         )
-        for file in files
+        for file in files if file["path"].suffix in file_suffix_icon_map.keys()
     ]
     return file_links
 
@@ -69,14 +80,12 @@ def build_course_section(course):
 
 
 def build_sidebar():
-    asset_path = Path("./src/lecture_search/app/assets/")
-    courses_path = asset_path / "courses"
     courses = [
         {
             "name": course.name,
             "path": course,
         }
-        for course in courses_path.iterdir()
+        for course in courses_dir.iterdir()
         if course.is_dir()
     ]
     course_headers = [
@@ -85,7 +94,24 @@ def build_sidebar():
                 course["name"],
                 dmc.Divider(variant="solid", size="xs"),
             ],
-            className="mantine-16kf70y",
+            # .mantine-16kf70y::after {
+#     content: "";
+#     flex: 1 1 0%;
+#     border-top: 1px solid rgb(206, 212, 218);
+#     margin-left: 10px;
+# }
+
+            style={
+                "fontFamily": "Inter, sans-serif",
+                "color": "inherit",
+                "fontSize": "12px",
+                "lineHeight": "1.55",
+                "textDecoration": "none",
+                "display": "flex",
+                "-mozBoxAlign": "center",
+                "alignItems": "center",
+                "marginTop": "2px",
+            }
         )
         for course in courses
     ]
@@ -105,16 +131,40 @@ sidebar = html.Div(
                 html.H2("Courses"),
                 *build_sidebar(),
             ],
-            className="mantine-1pfv4rc",
+            style={
+                "display": "flex",
+                "flexDirection": "column",
+                "-mozBoxAlign": "stretch",
+                "alignItems": "stretch",
+                "-mozBoxPack": "start",
+                "justifyContent": "flex-start",
+                "gap": "0px",
+                "paddingRight": "25px",
+                "paddingLeft": "25px"
+            }
         )
     ],
-    className="sidebar",
+    style={
+        "fontFamily": "Inter, sans-serif",
+        "top": "70px",
+        "bottom": "30px",
+        "zIndex": "1000",
+        "width": "300px",
+        "position": "fixed",
+        "boxSizing": "border-box",
+        "display": "flex",
+        "flexDirection": "column",
+        "backgroundColor": "rgb(255, 255, 255)",
+        "overflow": "scroll",
+        "borderRight": "1px solid rgb(233, 236, 239)",
+    }
 )
 
 
 app.layout = dmc.MantineProvider(
     children=html.Div(
         [
+            dcc.Store(id="course_dir", data=str(courses_dir)),
             sidebar,
             html.Div(
                 [
@@ -133,7 +183,12 @@ app.layout = dmc.MantineProvider(
                     ),
                     dash.page_container,
                 ],
-                className="content_app",
+
+                style={
+
+                    "padding": "10px",
+                    "marginLeft": "320px",
+                }
             ),
         ]
     ),
@@ -148,7 +203,6 @@ import json
 )
 def search_event(value):
     if value is not None:
-        print(value)
         search = json.loads(value)
         #
         return dcc.Location(
@@ -159,4 +213,4 @@ def search_event(value):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=False)
+    app.run_server(debug=True)

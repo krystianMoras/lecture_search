@@ -23,8 +23,11 @@ pandas = "*"
 lecture-search = {editable = true, path = "."}
 dash-bootstrap-components = "*"
 dash-player = "*"
-llama-index = "*"
+llama-cpp-python = "*"
 tqdm = "*"
+pytube = "*"
+sentence-transformers = "*"
+pycozo = {version = "*", extras = ["embedded","pandas","requests"]}
 
 [dev-packages]
 flake8 = "*"
@@ -38,4 +41,4 @@ types-pyyaml = "*"
 
 [requires]
 python_version = "3.10"
-python_full_version = "3.10.10"
+python_full_version = "3.10.8"

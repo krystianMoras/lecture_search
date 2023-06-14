@@ -7,7 +7,7 @@ import lecture_search.app.pages.asset_readers.reader_video as reader_video
 from dash_extensions.EventListener import EventListener
 
 dash.register_page(
-    __name__, path_template="/courses/<course_name>/<lecture_name>/<asset_name>"
+    __name__, path_template="/<course_name>/<lecture_name>/<asset_name>"
 )
 event = {"event": "scroll", "props": ["target.scrollTop", "target.scrollLeft"]}
 
@@ -23,7 +23,8 @@ def layout(course_name, lecture_name, asset_name, page=None, startTime=None):
     course_name = unquote(course_name)
     lecture_name = unquote(lecture_name)
     asset_name = unquote(asset_name)
-    path = f"courses/{course_name}/{lecture_name}/{asset_name}"
+    path = f"{course_name}/{lecture_name}/{asset_name}"
+    print(path)
     if asset_name.endswith(".pdf"):
         content = reader_slides.bp.embed(app)
     elif asset_name.endswith(".mp4"):

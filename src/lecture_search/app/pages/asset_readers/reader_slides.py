@@ -5,6 +5,7 @@ from pypdf import PdfReader
 
 from pathlib import Path
 from dash_pdf import DashPdfDocument, DashPdfPage
+import lecture_search.app.constants as constants
 
 
 bp = DashBlueprint()
@@ -48,7 +49,8 @@ clientside_callback(
     Input("file_path", "data"),
 )
 def on_click(file_path):
-    path_to_slides = Path("./src/lecture_search/app/assets") / file_path
+    path_to_slides = constants.courses_dir / file_path
+    print(path_to_slides)
     with open(path_to_slides, "rb") as pdf_file:
         readpdf = PdfReader(pdf_file)
         totalpages = len(readpdf.pages)

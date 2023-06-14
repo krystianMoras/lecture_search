@@ -6,6 +6,8 @@ import dash
 import dash_player
 import srt
 from lecture_search.app.subtitle_fetcher import parse_subtitles, find_subtitle
+import lecture_search.app.constants as constants
+
 
 bp = DashBlueprint()
 bp.layout = html.Div(
@@ -92,9 +94,8 @@ def load_video(start_time, file_path):
     Input("file_path", "data"),
 )
 def load_subtitles(file_path):
-    path_to_subtitles = (
-        Path("./src/lecture_search/app/assets/processed")
-        / Path(file_path).with_suffix(".srt").name
-    )
+    path_to_subtitles = constants.courses_dir / Path(file_path).with_suffix(".srt")
+    print(path_to_subtitles)
+    
     if path_to_subtitles.exists():
         return parse_subtitles(path_to_subtitles)

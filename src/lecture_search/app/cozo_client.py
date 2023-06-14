@@ -1,81 +1,119 @@
 import pycozo
 import pandas as pd
 from pathlib import Path
+import nltk
+from sentence_transformers import SentenceTransformer
 
-# singleton instance
-try:
-    cozo_client = pycozo.Client(
-        "sqlite", r"src\lecture_search\app\assets\database_test.db"
-    )
-except:
-    cozo_client = None
-from sentence_transformers import SentenceTransformer, CrossEncoder, util
+cozo_client = None
+bi_encoder = None
 
-bi_encoder = SentenceTransformer("multi-qa-MiniLM-L6-cos-v1")
+# Poor man's singletons
+def get_bi_encoder():
+    global bi_encoder
+    if bi_encoder is None:
+        bi_encoder = SentenceTransformer("multi-qa-MiniLM-L6-cos-v1")
+    return bi_encoder
 
-
-def get_client():
+def get_client(db_path: str):
+    global cozo_client
+    if cozo_client is None:
+        cozo_client = pycozo.Client("sqlite", db_path)
     return cozo_client
 
 
-def full_text_search(search_string: str):
-    return cozo_client.run(
+def full_text_search(cozo_client, search_string: str):
+    search_string = search_string.lower()
+    search_string = nltk.word_tokenize(search_string)
+    # stem every word in search string
+    stemmer = nltk.stem.PorterStemmer()
+    search_string = [stemmer.stem(word) for word in search_string]
+    search_string = " ".join(search_string)
+    print(search_string)
+    sentences = cozo_client.run(
         """
-        ?[slide_id, path, sentence] := ~slide_sentences:full_text_search {slide_id,path, sentence |
+        ?[sentence_id, type, sentence] := ~sentences:keyword {sentence_id,type, sentence |
             query: $query,
             k: 15
         }
-        
         """,
         {"query": search_string},
-    ).to_dict(orient="records")
+    )
+    sentences["path"] = [None] * len(sentences)
+    sentences["start_time"] = [None] * len(sentences)
+    sentences["end_time"] = [None] * len(sentences)
+    sentences["slide_i"] = [None] * len(sentences)
+    sentences["sentence_i"] = [None] * len(sentences)
+
+    
+    for row in sentences.itertuples():
+        if row.type == "video":
+            sentence_result = cozo_client.run(
+                """
+                ?[sentence_id, path, start_time, end_time] := *videos_sentences[sentence_id, file_id, start_time, end_time], sentence_id=$sentence_id, *courses_files[id,path, type, lecture, course], id=file_id
+                """, {"sentence_id": row.sentence_id}
+            )
+            sentences.loc[row.Index, "path"] = sentence_result.path.tolist()[0]
+            sentences.loc[row.Index, "start_time"] = sentence_result.start_time.tolist()[0]
+            sentences.loc[row.Index, "end_time"] = sentence_result.end_time.tolist()[0]
+        if row.type == "kadzinski_notes_pdf" or row.type == "pdf":
+            sentence_result = cozo_client.run(
+                """
+                ?[sentence_id, path, slide_i, sentence_i] := *slides_sentences[sentence_id, file_id, slide_i, sentence_i], sentence_id=$sentence_id, *courses_files[id,path, type, lecture, course], id=file_id
+                """, {"sentence_id": row.sentence_id}
+            )
+            sentences.loc[row.Index, "path"] = sentence_result.path.tolist()[0]
+            sentences.loc[row.Index, "slide_i"] = sentence_result.slide_i.tolist()[0]
+            sentences.loc[row.Index, "sentence_i"] = sentence_result.sentence_i.tolist()[0]
+    return sentences.to_dict("records")
+
+def decode_passage(cozo_client, passage_id, passage_type):
+    result_passage = {}
+    if passage_type == "slide":
+        
+        sent_results= cozo_client.run("""
+            passage[file_id,slide_i, sentence_start, sentence_end] := *passages_slides[passage_id, file_id, slide_i, sentence_start, sentence_end] , passage_id=$passage_id
+            ?[sentence_id, path, slide_i, sentence_i] := *slides_sentences[sentence_id, file_id, slide_i, sentence_i], passage[file_id,slide_i, sentence_start, sentence_end], sentence_i>=sentence_start, sentence_i<sentence_end, *courses_files[id,path, type, lecture, course], id=file_id
+            :order slide_i, sentence_i
+            """, {"passage_id": passage_id})
+        
+        slide_i = sent_results.slide_i.tolist()[0]
+
+        result_passage["slide_i"] = slide_i
+
+    if passage_type == "video":
+
+        sent_results = cozo_client.run("""
+            passage[file_id, start_time_p, end_time_p] := *passages_videos[passage_id, file_id, start_time_p, end_time_p] , passage_id=$passage_id
+            ?[sentence_id, path, start_time, end_time] := *videos_sentences[sentence_id, file_id, start_time, end_time], passage[file_id, start_time_p, end_time_p], start_time>=start_time_p, end_time<end_time_p, *courses_files[id,path, type, lecture, course], id=file_id
+            :order start_time
+            """, {"passage_id": passage_id})
+        
+        start_time = sent_results.start_time.tolist()[0]
+        end_time = sent_results.end_time.tolist()[0]
+        
+        result_passage["start_time"] = start_time
+        result_passage["end_time"] = end_time
+        
 
 
-def semantic_search(search_string: str, isVideo=False):
+    sentence_ids = sent_results.sentence_id.tolist()
+    path = sent_results.path.tolist()[0]
+    result_passage["path"] = path
+
+    sentences = cozo_client.run("""
+    ?[sentence_id, sentence] := *sentences[sentence_id, sentence, type], sentence_id in $sentence_ids
+    """, {"sentence_ids": sentence_ids})
+    total_passage = " ".join([sentences[sentences.sentence_id == sentence_id].sentence.values[0] for sentence_id in sentence_ids])
+
+    result_passage["sentence"] = total_passage
+    return result_passage
+
+def semantic_search(cozo_client, search_string: str, bi_encoder: SentenceTransformer):
     query_embedding = bi_encoder.encode(search_string)
 
-    if not isVideo:
-        results_slides = cozo_client.run(
+    results = cozo_client.run(
             """
-            ?[dist, path, slide_id, start_sentence_id, end_sentence_id] := ~passages_slides:semantic{ path, slide_id, start_sentence_id, end_sentence_id, embedding |
-                query: q,
-                k: 5,
-                ef: 200,
-                bind_distance: dist,
-            }, q = vec($query),
-            :order dist
-        """,
-            {"query": query_embedding.tolist()},
-        )
-        results_slides["sentence"] = [None] * len(results_slides)
-        for row in results_slides.itertuples():
-            path, slide_id, start_sentence_id, end_sentence_id = (
-                row.path,
-                row.slide_id,
-                row.start_sentence_id,
-                row.end_sentence_id,
-            )
-
-            passage = cozo_client.run(
-                """
-                ?[path, slide_id, sentence_id, sentence] := *slide_sentences[path, slide_id, sentence_id, sentence], path=$path, slide_id=$slide_id, sentence_id >= $start_sentence_id, sentence_id <= $end_sentence_id
-            """,
-                {
-                    "path": path,
-                    "slide_id": slide_id,
-                    "start_sentence_id": start_sentence_id,
-                    "end_sentence_id": end_sentence_id,
-                },
-            ).sentence.tolist()
-
-            # insert passage into results
-            results_slides.at[row.Index, "sentence"] = " ".join(passage)
-        return results_slides.to_dict(orient="records")
-
-    else:
-        results_videos = cozo_client.run(
-            """
-            ?[dist, path, start, end] := ~passages_videos:semantic{ path, start, end, embedding |
+            ?[dist, passage_id, type] := ~passages:semantic{ passage_id, type, embedding |
                 query: q,
                 k: 10,
                 ef: 200,
@@ -86,65 +124,21 @@ def semantic_search(search_string: str, isVideo=False):
             {"query": query_embedding.tolist()},
         )
 
-        results_videos["sentence"] = [None] * len(results_videos)
-        for row in results_videos.itertuples():
-            path, start_time, end_time = (
-                row.path,
-                row.start,
-                row.end,
-            )
+    results["sentence"] = [None] * len(results)
+    results["path"] = [None] * len(results)
+    results["slide_i"] = [None] * len(results)
+    results["start_time"] = [None] * len(results)
+    results["end_time"] = [None] * len(results)
 
-            passage = cozo_client.run(
-                """
-                ?[path, start, end, sentence] := *video_sentences[path, start, end, sentence], path=$path, start>=$start_time, end<=$end_time
-                :order path, start
-            """,
-                {
-                    "path": path,
-                    "start_time": start_time,
-                    "end_time": end_time,
-                },
-            ).sentence.tolist()
+    for row in results.itertuples():
+        passage_id = row.passage_id
+        passage_type = row.type
 
-            # insert passage into results
-            results_videos.at[row.Index, "sentence"] = " ".join(passage)
-
-        return results_videos.to_dict(orient="records")
-
-
-def create_course_files_relation(client):
-    return client.run(
-        """
-    :create courses_files {path => type, lecture, course}
-    """
-    )
-
-
-def create_reference_assets_relation(client):
-    return client.run(
-        """
-    :create reference_assets {reference, referred_to, type}
-"""
-    )
-
-
-def import_relations(client, relation):
-    return client.import_relations(relation)
-
-
-def assign_text_to_pdf(client, slides_path: Path, text_path: Path):
-    return client.run(
-        """
-            ?[reference, referred_to, type] <- [[$reference, $referred_to, $type]]
-            :put reference_assets {reference, referred_to, type}
-        """,
-        {
-            "reference": text_path.as_posix(),
-            "referred_to": slides_path.as_posix(),
-            "type": "text",
-        },
-    )
-
+        result_passage = decode_passage(cozo_client, passage_id, passage_type)
+        # insert passage into results
+        for key in result_passage:
+            results.at[row.Index, key] = result_passage[key]
+    return results.to_dict(orient="records")
 
 def get_files(client, type=None, course=None, lecture=None):
     type_filter = ""
@@ -159,106 +153,5 @@ def get_files(client, type=None, course=None, lecture=None):
     return client.run(
         f"""
     ?[path, type, lecture, course] := *courses_files[path, type, lecture, course] {type_filter}{course_filter}{lecture_filter}
-    """
-    )
-
-
-def create_slide_sentences_relation(client):
-    return client.run(
-        """
-    :create slide_sentences {path, slide_id, sentence_id => sentence}
-    """
-    )
-
-
-def create_video_sentences_relation(client):
-    return client.run(
-        """
-    :create video_sentences {path, start, end => sentence}
-    """
-    )
-
-
-def create_fts_index(client):
-    client.run(
-        """
-        ::fts create slide_sentences:full_text_search {
-        extractor: sentence,
-        tokenizer: Simple,
-        filters: [Lowercase,AlphaNumOnly, Stemmer('English')],
-    }
-    """
-    )
-    client.run(
-        """
-        ::fts create video_sentences:full_text_search {
-        extractor: sentence,
-        tokenizer: Simple,
-        filters: [Lowercase,AlphaNumOnly, Stemmer('English')],
-    }
-    """
-    )
-
-
-def get_slide_sentences(client):
-    sentences = client.run(
-        """
-    ?[slide_id,sentence_id, path, sentence] := *slide_sentences[path, slide_id, sentence_id, sentence]
-    :order path, slide_id, sentence_id
-    """
-    ).groupby(["path", "slide_id"])
-    return sentences
-
-
-def get_video_sentences(client):
-    sentences = client.run(
-        """
-    ?[start, end, path, sentence] := *video_sentences[path, start, end, sentence]
-    :order path, start, end
-    """
-    ).groupby(["path"])
-    return sentences
-
-
-def create_passages_relations(client):
-    # client.run(
-    #     """
-    #     :create passages_slides {path:String, slide_id:Int, start_sentence_id:Int, end_sentence_id:Int => embedding:<F32;384>}
-    # """
-    # )
-    client.run(
-        """
-        :create passages_videos {path:String, start:Float, end:Float => embedding:<F32;384>}
-    """
-    )
-
-
-def create_hnsw_index(client):
-    client.run(
-        """
-        ::hnsw create passages_slides:semantic {
-        dim: 384,
-        m: 50,
-        dtype: F32,
-        fields: [embedding],
-        distance: Cosine,
-        ef_construction: 20,
-        extend_candidates: false,
-        keep_pruned_connections: false,
-    }
-    """
-    )
-    client.run(
-        """
-        ::hnsw create passages_videos:semantic {
-        dim: 384,
-        m: 50,
-        dtype: F32,
-        fields: [embedding],
-        distance: Cosine,
-        ef_construction: 20,
-        extend_candidates: false,
-        keep_pruned_connections: false,
-    }
     """
     )

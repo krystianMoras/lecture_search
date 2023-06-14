@@ -1,0 +1,2 @@
+
+courses_dir = None

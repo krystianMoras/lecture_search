@@ -1,26 +1,11 @@
 from pytube import YouTube
 from pathlib import Path
 from pytube.helpers import safe_filename
-import yaml
 import logging
+import argparse
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-with open("config.yaml", "r") as f:
-    config = yaml.safe_load(f)
-
-
-list_of_urls = [
-    "https://www.youtube.com/watch?v=yutQvsj83js",
-    "https://www.youtube.com/watch?v=SCJNES0envM",
-    "https://www.youtube.com/watch?v=CAKdIk_IUQ8",
-    "https://www.youtube.com/watch?v=4-forNUa-CY",
-    "https://www.youtube.com/watch?v=PVA32JD8fXk",
-    "https://www.youtube.com/watch?v=l0lGHHZN3Hw",
-]
-
-output_path = Path(config["videos_path"])
 
 
 def download_yt(url, output_path):
@@ -36,5 +21,24 @@ def download_yt(url, output_path):
 
 
 if __name__ == "__main__":
-    for url in list_of_urls:
-        download_yt(url, output_path)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--urls", required=True, nargs="+", help="List of urls to download")
+
+    group = parser.add_mutually_exclusive_group(required=True)
+
+    group.add_argument("--output_dir", help="Path to save videos")
+    group.add_argument("--output_paths", help="Paths to output videos", nargs="+")
+
+    args = parser.parse_args()
+
+    if args.output_paths:
+        assert len(args.urls) == len(args.output_paths), "Number of urls and output paths must be equal"
+        for url, output_path in zip(args.urls, args.output_paths):
+            # create folders in output path if they don't exist
+            Path(output_path).mkdir(parents=True, exist_ok=True)
+            
+            download_yt(url, Path(output_path))
+    else:
+        for url in args.urls:
+            download_yt(url, Path(args.output_path))

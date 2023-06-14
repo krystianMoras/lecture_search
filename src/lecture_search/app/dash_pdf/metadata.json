@@ -1,0 +1,276 @@
+{
+  "src/lib/components/DashPdfDocument.react.js": {
+    "description": "",
+    "displayName": "DashPdfDocument",
+    "methods": [],
+    "props": {
+      "file": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "File to be displayed, url or base64 string"
+      },
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "The ID used to identify this component in Dash callbacks"
+      },
+      "children": {
+        "type": {
+          "name": "node"
+        },
+        "required": false,
+        "description": "Children of DashPdfDocument, list of DashPdfPage or other components"
+      }
+    }
+  },
+  "src/lib/components/DashPdfPage.react.js": {
+    "description": "",
+    "displayName": "DashPdfPage",
+    "methods": [],
+    "props": {
+      "pageNumber": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Page number to be displayed",
+        "defaultValue": {
+          "value": "1",
+          "computed": false
+        }
+      },
+      "width": {
+        "type": {
+          "name": "number"
+        },
+        "required": false,
+        "description": "Width of the page",
+        "defaultValue": {
+          "value": "500",
+          "computed": false
+        }
+      },
+      "annotations": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "shape",
+            "value": {
+              "annotationFlags": {
+                "name": "number",
+                "required": false
+              },
+              "annotationType": {
+                "name": "number",
+                "required": false
+              },
+              "borderStyle": {
+                "name": "shape",
+                "value": {
+                  "width": {
+                    "name": "number",
+                    "required": false
+                  },
+                  "style": {
+                    "name": "number",
+                    "required": false
+                  },
+                  "horizontalCornerRadius": {
+                    "name": "number",
+                    "required": false
+                  },
+                  "verticalCornerRadius": {
+                    "name": "number",
+                    "required": false
+                  }
+                },
+                "required": false
+              },
+              "rotation": {
+                "name": "number",
+                "required": false
+              },
+              "dest": {
+                "name": "string",
+                "required": false
+              },
+              "contentsObj": {
+                "name": "shape",
+                "value": {
+                  "str": {
+                    "name": "string",
+                    "required": false
+                  },
+                  "dst": {
+                    "name": "string",
+                    "required": false
+                  }
+                },
+                "required": false
+              },
+              "subtype": {
+                "name": "string",
+                "required": false
+              },
+              "url": {
+                "name": "string",
+                "required": false
+              },
+              "rect": {
+                "name": "arrayOf",
+                "value": {
+                  "name": "number"
+                },
+                "required": false
+              },
+              "id": {
+                "name": "string",
+                "required": false
+              }
+            }
+          }
+        },
+        "required": false,
+        "description": "Annotations to be displayed\r\nExample\r\n        const annotation = {\r\n            annotationFlags: 0,\r\n            annotationType: 2,\r\n            borderStyle: {\r\n                width: 0,\r\n                style: 1,\r\n                horizontalCornerRadius: 0,\r\n                verticalCornerRadius: 0,\r\n            },\r\n            rotation: 0,\r\n            dest: \"\",\r\n            contentsObj: {\r\n                str: \"\",\r\n                dst: \"ltr\",\r\n            },\r\n            subtype: \"Link\",\r\n        }\r\n        annotation.url = \"obsidian://open?vault=Personal&file=university%2Fin%C5%BCynierka%2Ftest\"\r\n        annotation.rect = [left, top - height, left + width, top];",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      },
+      "id": {
+        "type": {
+          "name": "string"
+        },
+        "required": false,
+        "description": "id of the component"
+      },
+      "selection": {
+        "type": {
+          "name": "shape",
+          "value": {
+            "annotationFlags": {
+              "name": "number",
+              "required": false
+            },
+            "annotationType": {
+              "name": "number",
+              "required": false
+            },
+            "borderStyle": {
+              "name": "shape",
+              "value": {
+                "width": {
+                  "name": "number",
+                  "required": false
+                },
+                "style": {
+                  "name": "number",
+                  "required": false
+                },
+                "horizontalCornerRadius": {
+                  "name": "number",
+                  "required": false
+                },
+                "verticalCornerRadius": {
+                  "name": "number",
+                  "required": false
+                }
+              },
+              "required": false
+            },
+            "rotation": {
+              "name": "number",
+              "required": false
+            },
+            "dest": {
+              "name": "string",
+              "required": false
+            },
+            "contentsObj": {
+              "name": "shape",
+              "value": {
+                "str": {
+                  "name": "string",
+                  "required": false
+                },
+                "dst": {
+                  "name": "string",
+                  "required": false
+                }
+              },
+              "required": false
+            },
+            "subtype": {
+              "name": "string",
+              "required": false
+            },
+            "url": {
+              "name": "string",
+              "required": false
+            },
+            "rect": {
+              "name": "arrayOf",
+              "value": {
+                "name": "number"
+              },
+              "required": false
+            },
+            "id": {
+              "name": "string",
+              "required": false
+            }
+          }
+        },
+        "required": false,
+        "description": "selection, annotation object, null if no selection",
+        "defaultValue": {
+          "value": "null",
+          "computed": false
+        }
+      },
+      "textItems": {
+        "type": {
+          "name": "arrayOf",
+          "value": {
+            "name": "shape",
+            "value": {
+              "str": {
+                "name": "string",
+                "required": false
+              },
+              "dir": {
+                "name": "string",
+                "required": false
+              },
+              "rect": {
+                "name": "arrayOf",
+                "value": {
+                  "name": "number"
+                },
+                "required": false
+              },
+              "fontName": {
+                "name": "string",
+                "required": false
+              },
+              "hasEOL": {
+                "name": "bool",
+                "required": false
+              }
+            }
+          }
+        },
+        "required": false,
+        "description": "text rects",
+        "defaultValue": {
+          "value": "[]",
+          "computed": false
+        }
+      }
+    }
+  }
+}

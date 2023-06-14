@@ -62,7 +62,5 @@ def find_words_to_highlight(
 if __name__ == "__main__":
     transcriptions = get_transcriptions("data/transcriptions.json")
     words, words_stemmed = get_words_stem_map(list(transcriptions.values())[0])
-    # print(words_stem_map)
     candidates, _ = get_filtered_candidates("data/filtered_candidates.json")
 
-    print(find_words_to_highlight(candidates, words, words_stemmed))

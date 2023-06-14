@@ -1,7 +1,3 @@
-import spacy
-
-nlp = spacy.load("en_core_web_sm")
-
 
 def merge_phrases(doc):
     with doc.retokenize() as retokenizer:
@@ -22,6 +18,8 @@ class FileConnector:
 
     @staticmethod
     def get_nouns(text):
+        import spacy
+        nlp = spacy.load("en_core_web_sm")
         spacy_tokens = nlp(text)
         spacy_tokens = merge_phrases(spacy_tokens)
         nouns = set()
